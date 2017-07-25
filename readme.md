@@ -13,5 +13,5 @@ Run bootstrap to set up a virtualenv and install the required package.
 To play a game, agree on a room name with the other player, and run something similar to the following:
 
 ```bash
-> $ python gomoku.py --hostname hub.nechifor.net:8443 --user "Dumbot (by David)" --room funroom --ngames 1
+> $ python gomoku.py --hostname hub.nechifor.net:8443 --user "Balthazar (by David)" --room funroom --ngames 1
 ```
