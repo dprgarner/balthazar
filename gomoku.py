@@ -69,20 +69,17 @@ class Gomoku(GomokuBase):
                 last = state[(self.SIZE - 1) * row + start_col]
 
         # The bottom-right diagonals, going up-right.
-        """
         for start_col in range(0, self.SIZE - 4):
             last = None
             in_a_row = 0
-            for row in range(0, start_col + 1):
-                if state[(self.SIZE - 1) * row + start_col] == last != 0:
+            for row in range(0, self.SIZE - start_col):
+                if state[(self.SIZE - row - 1) * self.SIZE + start_col + row] == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[(self.SIZE - 1) * row + start_col]
-        """
-
+                last = state[(self.SIZE - row - 1) * self.SIZE + start_col + row]
 
         return 0
 
