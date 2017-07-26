@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from os import path
-import json
-import hashlib
 import argparse
+import hashlib
+import json
+import numpy as np
 
 from websocket import create_connection
 
@@ -123,7 +124,7 @@ class GomokuBase(Client):
                 '{}║{}║'.format(
                     (' ' if i < 10 else '') + str(i),
                     ''.join([
-                        MOVES_STR[state[self.SIZE * i + j]]
+                        MOVES_STR[state[i, j]]
                         for j in range(self.SIZE)
                     ]),
                 )
@@ -139,7 +140,7 @@ class GomokuBase(Client):
         Modify this if you want to do something fancy.
         (The first player is -1, the second player is 1).
         """
-        state = [0] * (self.SIZE * self.SIZE)
+        state = np.zeros((self.SIZE, self.SIZE), dtype=int)
         turn_number = 0
         player_number = -1 if is_first_player else 1
 
@@ -152,11 +153,12 @@ class GomokuBase(Client):
                 is_my_turn = bool(turn_number % 2) != is_first_player
 
                 if is_my_turn:
-                    turn_space = self.play_turn(state, player_number)
-                    self.send({'type': 'Move', 'move': turn_space})
+                    (i, j) = self.play_turn(state, player_number)
+                    self.send({'type': 'Move', 'move': int(15 * i + j)})
 
                 update = self.recv_type('PlayerMove')
-                state[update['move']] = (
+                (i, j) = update['move'] // self.SIZE, update['move'] % self.SIZE
+                state[i, j] = (
                     player_number if is_my_turn else -player_number
                 )
                 if 'winner' in update:

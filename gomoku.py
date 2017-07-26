@@ -2,9 +2,7 @@ from client import GomokuBase
 
 
 class Gomoku(GomokuBase):
-    """
-    Write your bot here!
-    """
+
     def get_victor(self, state):
         # Check along rows.
         for row in range(self.SIZE):
@@ -90,7 +88,8 @@ class Gomoku(GomokuBase):
         number (-1 if this bot is the first player, 1 if the bot is the second
         player), return the index of the place to play (from 0 to 15*15-1).
         """
-        return sum(abs(i) for i in state)
+        next_place = sum(sum(abs(i) for i in state))
+        return next_place // self.SIZE, next_place % self.SIZE
 
 
 if __name__ == '__main__':
