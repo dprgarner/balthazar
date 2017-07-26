@@ -18,4 +18,4 @@ To play a game, agree on a room name with the other player, and run something si
 
 ## Testing
 
-    green -vv
+    > $ green -vv
