@@ -15,3 +15,7 @@ To play a game, agree on a room name with the other player, and run something si
 ```bash
 > $ python gomoku.py --hostname hub.nechifor.net:8443 --user "Balthazar (by David)" --room funroom --ngames 1
 ```
+
+## Testing
+
+    green -vv

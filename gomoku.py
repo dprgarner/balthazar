@@ -6,78 +6,77 @@ class Gomoku(GomokuBase):
     def get_victor(self, state):
         # Check along rows.
         for row in range(self.SIZE):
-            offset = row * self.SIZE
             in_a_row = 0
             for col in range(1, self.SIZE):
-                if state[offset + col] == state[offset + col - 1] != 0:
+                if state[row, col] == state[row, col - 1] != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
-                    return state[offset + col]
+                    return state[row, col]
 
         # Check along columns.
         for col in range(self.SIZE):
             in_a_row = 0
-            for offset in range(self.SIZE, self.SIZE * self.SIZE, self.SIZE):
-                if state[offset + col] == state[offset + col - self.SIZE] != 0:
+            for row in range(self.SIZE):
+                if state[row, col] == state[row - 1, col] != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
-                    return state[offset + col]
+                    return state[row, col]
 
         # The top-right diagonals, going down-right.
         for start_col in range(self.SIZE - 4):
             last = None
             in_a_row = 0
             for row in range(0, self.SIZE - start_col):
-                if state[(self.SIZE + 1) * row + start_col] == last != 0:
+                if state[row, start_col + row] == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[(self.SIZE + 1) * row + start_col]
+                last = state[row, start_col + row]
 
         # The bottom-left diagonals, going down-right.
         for start_row in range(1, self.SIZE - 4):
             last = None
             in_a_row = 0
             for col in range(0, self.SIZE - start_row):
-                if state[(start_row + col) * self.SIZE + col] == last != 0:
+                if state[start_row + col, col] == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[(start_row + col) * self.SIZE + col]
+                last = state[start_row + col, col]
 
         # The top-left diagonals, going down-left.
         for start_col in range(4, self.SIZE):
             last = None
             in_a_row = 0
             for row in range(0, start_col + 1):
-                if state[(self.SIZE - 1) * row + start_col] == last != 0:
+                if state[row, start_col - row] == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[(self.SIZE - 1) * row + start_col]
+                last = state[row, start_col - row]
 
         # The bottom-right diagonals, going up-right.
         for start_col in range(0, self.SIZE - 4):
             last = None
             in_a_row = 0
             for row in range(0, self.SIZE - start_col):
-                if state[(self.SIZE - row - 1) * self.SIZE + start_col + row] == last != 0:
+                if state[self.SIZE - row - 1, start_col + row] == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[(self.SIZE - row - 1) * self.SIZE + start_col + row]
+                last = state[self.SIZE - row - 1, start_col + row]
 
         return 0
 
