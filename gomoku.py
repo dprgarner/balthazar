@@ -26,57 +26,41 @@ class Gomoku(GomokuBase):
                 if in_a_row == 4:
                     return state[row, col]
 
-        # The top-right diagonals, going down-right.
-        for start_col in range(self.SIZE - 4):
-            last = None
-            in_a_row = 0
-            for row in range(0, self.SIZE - start_col):
-                if state[row, start_col + row] == last != 0:
-                    in_a_row += 1
-                else:
-                    in_a_row = 0
-                if in_a_row == 4:
-                    return last
-                last = state[row, start_col + row]
+        # The down-right diagonals.
+        for i in range(-self.SIZE + 5, self.SIZE - 4):
+            start_row = max(0, -i)
+            start_col = max(0, i)
 
-        # The bottom-left diagonals, going down-right.
-        for start_row in range(1, self.SIZE - 4):
             last = None
             in_a_row = 0
-            for col in range(0, self.SIZE - start_row):
-                if state[start_row + col, col] == last != 0:
-                    in_a_row += 1
-                else:
-                    in_a_row = 0
-                if in_a_row == 4:
-                    return last
-                last = state[start_row + col, col]
 
-        # The top-left diagonals, going down-left.
-        for start_col in range(4, self.SIZE):
-            last = None
-            in_a_row = 0
-            for row in range(0, start_col + 1):
-                if state[row, start_col - row] == last != 0:
+            for k in range(min(self.SIZE - start_row, self.SIZE - start_col)):
+                next_square = state[start_row + k, start_col + k]
+                if next_square == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[row, start_col - row]
+                last = next_square
 
-        # The bottom-right diagonals, going up-right.
-        for start_col in range(0, self.SIZE - 4):
+        # The up-right diagonals.
+        for i in range(4, self.SIZE * 2 - 5):
+            start_row = min(i, self.SIZE - 1)
+            start_col = max(0, i - self.SIZE + 1)
+
             last = None
             in_a_row = 0
-            for row in range(0, self.SIZE - start_col):
-                if state[self.SIZE - row - 1, start_col + row] == last != 0:
+
+            for k in range(min(start_row + 1, self.SIZE - start_col)):
+                next_square = state[start_row - k, start_col + k]
+                if next_square == last != 0:
                     in_a_row += 1
                 else:
                     in_a_row = 0
                 if in_a_row == 4:
                     return last
-                last = state[self.SIZE - row - 1, start_col + row]
+                last = next_square
 
         return 0
 
