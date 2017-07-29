@@ -1,9 +1,31 @@
 from client import GomokuBase
 
 
+FIVES = {
+    (0, 1, 1, 1, 1): ('FOUR', [0]),
+    (1, 0, 1, 1, 1): ('FOUR', [1]),
+    (1, 1, 0, 1, 1): ('FOUR', [2]),
+    (1, 1, 1, 0, 1): ('FOUR', [3]),
+    (1, 1, 1, 1, 0): ('FOUR', [4]),
+    (1, 1, 1, 1, 1): ('FIVE', []),
+}
+
+SIXES = {
+    (0, 1, 1, 1, 0, 0): ('THREE', [0, 4]),
+    (0, 0, 1, 1, 1, 0): ('THREE', [1, 5]),
+    (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5]),
+    (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5]),
+    (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5]),
+}
+
+
 class Gomoku(GomokuBase):
 
     def get_victor(self, state):
+        """
+        TODO use np.diag
+        """
+
         # Check along rows.
         for row in range(self.SIZE):
             in_a_row = 0
@@ -79,18 +101,9 @@ class Gomoku(GomokuBase):
         player = 1 if counts[2] else -1
         abs_six = tuple(abs(counters[s]) for s in range(6))
 
-        if abs_six == (0, 1, 1, 1, 0, 0):
-            return ('THREE', player, [0, 4])
-        if abs_six == (0, 0, 1, 1, 1, 0):
-            return ('THREE', player, [1, 5])
-
-        if abs_six == (0, 1, 0, 1, 1, 0):
-            return ('SPLIT_THREE', player, [0, 2, 5])
-        if abs_six == (0, 1, 1, 0, 1, 0):
-            return ('SPLIT_THREE', player, [0, 3, 5])
-
-        if abs_six == (0, 1, 1, 1, 1, 0):
-            return ('OPEN_FOUR', player, [0, 5])
+        threat = SIXES.get(abs_six)
+        if threat:
+            return threat[0], player, threat[1]
 
     def match_five_threat(self, counters):
         # Return (type_, gain_squares)
@@ -107,23 +120,9 @@ class Gomoku(GomokuBase):
         player = 1 if counts[2] else -1
         abs_five = tuple(abs(counters[s]) for s in range(5))
 
-        if abs_five == (0, 1, 1, 1, 1):
-            return ('FOUR', player, [0])
-
-        if abs_five == (1, 0, 1, 1, 1):
-            return ('FOUR', player, [1])
-
-        if abs_five == (1, 1, 0, 1, 1):
-            return ('FOUR', player, [2])
-
-        if abs_five == (1, 1, 1, 0, 1):
-            return ('FOUR', player, [3])
-
-        if abs_five == (1, 1, 1, 1, 0):
-            return ('FOUR', player, [4])
-
-        if abs_five == (1, 1, 1, 1, 1):
-            return ('FIVE', player, [])
+        threat = FIVES.get(abs_five)
+        if threat:
+            return threat[0], player, threat[1]
 
     def find_threat(self, state):
         """
