@@ -64,6 +64,107 @@ class Gomoku(GomokuBase):
 
         return 0
 
+    def match_six_threat(self, counters):
+        # Return (type_, gain_squares)
+
+        counts = [0, 0, 0]
+        for s in range(6):
+            counts[counters[s] + 1] += 1
+
+        if counts[0] != 0 and counts[2] != 0:
+            return
+        if counts[0] < 3 and counts[2] < 3:
+            return
+
+        player = 1 if counts[2] else -1
+        abs_six = tuple(abs(counters[s]) for s in range(6))
+
+        if abs_six == (0, 1, 1, 1, 0, 0):
+            return ('THREE', player, [0, 4])
+        if abs_six == (0, 0, 1, 1, 1, 0):
+            return ('THREE', player, [1, 5])
+
+        if abs_six == (0, 1, 0, 1, 1, 0):
+            return ('SPLIT_THREE', player, [0, 2, 5])
+        if abs_six == (0, 1, 1, 0, 1, 0):
+            return ('SPLIT_THREE', player, [0, 3, 5])
+
+        if abs_six == (0, 1, 1, 1, 1, 0):
+            return ('OPEN_FOUR', player, [0, 5])
+
+    def match_five_threat(self, counters):
+        # Return (type_, gain_squares)
+
+        counts = [0, 0, 0]
+        for s in range(5):
+            counts[counters[s] + 1] += 1
+
+        if counts[0] != 0 and counts[2] != 0:
+            return
+        if counts[0] < 4 and counts[2] < 4:
+            return
+
+        player = 1 if counts[2] else -1
+        abs_five = tuple(abs(counters[s]) for s in range(5))
+
+        if abs_five == (0, 1, 1, 1, 1):
+            return ('FOUR', player, [0])
+
+        if abs_five == (1, 0, 1, 1, 1):
+            return ('FOUR', player, [1])
+
+        if abs_five == (1, 1, 0, 1, 1):
+            return ('FOUR', player, [2])
+
+        if abs_five == (1, 1, 1, 0, 1):
+            return ('FOUR', player, [3])
+
+        if abs_five == (1, 1, 1, 1, 0):
+            return ('FOUR', player, [4])
+
+        if abs_five == (1, 1, 1, 1, 1):
+            return ('FIVE', player, [])
+
+    def find_threat(self, state):
+        """
+        In progress...
+        """
+        threats = []
+        return
+        # Check along rows for a threat.
+        for row in range(self.SIZE):
+            counters = list(state[row])
+
+            while counters:
+                if len(group) > 6:
+                    six_threat = self.match_six_threat(counters)
+                    if six_threat:
+                        type_, player, gain_squares = six_threat
+                        threats.append(
+                            type_, [
+                                (row, col + gain_square)
+                                for gain_square in gain_squares
+                            ]
+                        )
+                        continue
+                    group.pop()
+
+                if len(group) == 5:
+                    five_threat = self.match_five_threat(group)
+                    if five_threat:
+                        type_, player, gain_squares, depleted = five_threat
+                        threats.append(
+                            type_, [
+                                (row, col + gain_square)
+                                for gain_square in gain_squares
+                            ]
+                        )
+                    del counters[0]
+                else:
+                    break
+
+        return threats
+
     def play_turn(self, state, player):
         """
         Given the state (represented as a single list of 15*15 integers, -1 for
