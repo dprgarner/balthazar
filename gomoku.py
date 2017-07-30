@@ -1,3 +1,4 @@
+import numpy as np
 from client import GomokuBase
 
 
@@ -144,7 +145,7 @@ class Gomoku(GomokuBase):
 
             del line[0]
 
-    def find_threats(self, state):
+    def find_threats_in_grid(self, state):
         """
         In progress...
         """
@@ -160,6 +161,54 @@ class Gomoku(GomokuBase):
                         for cost_square in cost_squares
                     ], [
                         (row, offset + gain_square)
+                        for gain_square in gain_squares
+                    ]
+                ))
+
+        # Check along columns...
+        for col in range(self.SIZE):
+            for threat in self.find_threats_in_line(list(state[:, col])):
+                (player, type_, cost_squares, gain_squares), offset = threat
+                threats.append((
+                    player, type_, [
+                        (offset + cost_square, col)
+                        for cost_square in cost_squares
+                    ], [
+                        (offset + gain_square, col)
+                        for gain_square in gain_squares
+                    ]
+                ))
+
+        # Check along down-right diagonals...
+        for diag_offset in range(-self.SIZE + 5, self.SIZE - 4):
+            diag_line = list(np.diagonal(state, offset=diag_offset))
+            for threat in self.find_threats_in_line(diag_line):
+                (player, type_, cost_squares, gain_squares), offset = threat
+                row = max(0, -diag_offset) + offset
+                col = max(0, diag_offset) + offset
+                threats.append((
+                    player, type_, [
+                        (row + cost_square, col + cost_square)
+                        for cost_square in cost_squares
+                    ], [
+                        (row + gain_square, col + gain_square)
+                        for gain_square in gain_squares
+                    ]
+                ))
+
+        # Check along down-left diagonals...
+        for diag_offset in range(-self.SIZE + 5, self.SIZE - 4):
+            diag_line = list(np.diagonal(state[::-1], offset=diag_offset))
+            for threat in self.find_threats_in_line(diag_line):
+                (player, type_, cost_squares, gain_squares), offset = threat
+                row = self.SIZE - 1 - max(0, -diag_offset) - offset
+                col = max(0, diag_offset) + offset
+                threats.append((
+                    player, type_, [
+                        (row - cost_square, col + cost_square)
+                        for cost_square in cost_squares
+                    ], [
+                        (row - gain_square, col + gain_square)
                         for gain_square in gain_squares
                     ]
                 ))
