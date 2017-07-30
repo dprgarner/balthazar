@@ -2,20 +2,20 @@ from client import GomokuBase
 
 
 FIVES = {
-    (0, 1, 1, 1, 1): ('FOUR', [0]),
-    (1, 0, 1, 1, 1): ('FOUR', [1]),
-    (1, 1, 0, 1, 1): ('FOUR', [2]),
-    (1, 1, 1, 0, 1): ('FOUR', [3]),
-    (1, 1, 1, 1, 0): ('FOUR', [4]),
-    (1, 1, 1, 1, 1): ('FIVE', []),
+    (0, 1, 1, 1, 1): ('FOUR', [0], [0]),
+    (1, 0, 1, 1, 1): ('FOUR', [1], [1]),
+    (1, 1, 0, 1, 1): ('FOUR', [2], [2]),
+    (1, 1, 1, 0, 1): ('FOUR', [3], [3]),
+    (1, 1, 1, 1, 0): ('FOUR', [4], [4]),
+    (1, 1, 1, 1, 1): ('FIVE', [], []),
 }
 
 SIXES = {
-    (0, 1, 1, 1, 0, 0): ('THREE', [0, 4]),
-    (0, 0, 1, 1, 1, 0): ('THREE', [1, 5]),
-    (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5]),
-    (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5]),
-    (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5]),
+    (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
+    (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
+    (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5], [2]),
+    (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5], [3]),
+    (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
 }
 
 
@@ -87,7 +87,7 @@ class Gomoku(GomokuBase):
         return 0
 
     def match_six_threat(self, counters):
-        # Return (type_, gain_squares)
+        # Return (player, type, defence_squares, offense_squares).
 
         counts = [0, 0, 0]
         for s in range(6):
@@ -103,10 +103,10 @@ class Gomoku(GomokuBase):
 
         threat = SIXES.get(abs_six)
         if threat:
-            return threat[0], player, threat[1]
+            return (player,) + threat
 
     def match_five_threat(self, counters):
-        # Return (type_, gain_squares)
+        # Return (player, type, defence_squares, offense_squares).
 
         counts = [0, 0, 0]
         for s in range(5):
@@ -122,7 +122,7 @@ class Gomoku(GomokuBase):
 
         threat = FIVES.get(abs_five)
         if threat:
-            return threat[0], player, threat[1]
+            return (player,) + threat
 
     def find_threat(self, state):
         """
