@@ -1,6 +1,14 @@
 from client import GomokuBase
 
 
+SIXES = {
+    (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
+    (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
+    (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5], [2]),
+    (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5], [3]),
+    (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
+}
+
 FIVES = {
     (0, 1, 1, 1, 1): ('FOUR', [0], [0]),
     (1, 0, 1, 1, 1): ('FOUR', [1], [1]),
@@ -8,14 +16,6 @@ FIVES = {
     (1, 1, 1, 0, 1): ('FOUR', [3], [3]),
     (1, 1, 1, 1, 0): ('FOUR', [4], [4]),
     (1, 1, 1, 1, 1): ('FIVE', [], []),
-}
-
-SIXES = {
-    (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
-    (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
-    (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5], [2]),
-    (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5], [3]),
-    (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
 }
 
 
@@ -97,11 +97,11 @@ class Gomoku(GomokuBase):
             return
         if counts[0] < 3 and counts[2] < 3:
             return
-
         player = 1 if counts[2] else -1
-        abs_six = tuple(abs(counters[s]) for s in range(6))
 
+        abs_six = tuple(abs(counters[s]) for s in range(6))
         threat = SIXES.get(abs_six)
+
         if threat:
             return (player,) + threat
 
@@ -116,11 +116,11 @@ class Gomoku(GomokuBase):
             return
         if counts[0] < 4 and counts[2] < 4:
             return
-
         player = 1 if counts[2] else -1
-        abs_five = tuple(abs(counters[s]) for s in range(5))
 
+        abs_five = tuple(abs(counters[s]) for s in range(5))
         threat = FIVES.get(abs_five)
+
         if threat:
             return (player,) + threat
 
@@ -129,38 +129,43 @@ class Gomoku(GomokuBase):
         In progress...
         """
         threats = []
-        return
-        # Check along rows for a threat.
+
+        # Check along rows for a threat
         for row in range(self.SIZE):
             counters = list(state[row])
 
-            while counters:
-                if len(group) > 6:
+            while len(counters) >= 5:
+                col = self.SIZE - len(counters)
+                if len(counters) >= 6:
                     six_threat = self.match_six_threat(counters)
                     if six_threat:
-                        type_, player, gain_squares = six_threat
-                        threats.append(
-                            type_, [
+                        player, type_, cost_squares, gain_squares = six_threat
+                        threats.append((
+                            player, type_, [
+                                (row, col + cost_square)
+                                for cost_square in cost_squares
+                            ], [
                                 (row, col + gain_square)
                                 for gain_square in gain_squares
                             ]
-                        )
+                        ))
+                        del counters[0]
                         continue
-                    group.pop()
 
-                if len(group) == 5:
-                    five_threat = self.match_five_threat(group)
-                    if five_threat:
-                        type_, player, gain_squares, depleted = five_threat
-                        threats.append(
-                            type_, [
-                                (row, col + gain_square)
-                                for gain_square in gain_squares
-                            ]
-                        )
-                    del counters[0]
-                else:
-                    break
+                five_threat = self.match_five_threat(counters)
+                if five_threat:
+                    player, type_, cost_squares, gain_squares = five_threat
+                    threats.append((
+                        player, type_, [
+                            (row, col + cost_square)
+                            for cost_square in cost_squares
+                        ], [
+                            (row, col + gain_square)
+                            for gain_square in gain_squares
+                        ]
+                    ))
+
+                del counters[0]
 
         return threats
 
