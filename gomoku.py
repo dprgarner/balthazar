@@ -124,48 +124,45 @@ class Gomoku(GomokuBase):
         if threat:
             return (player,) + threat
 
-    def find_threat(self, state):
+    def find_threats_in_line(self, line):
+        """
+        This method mutates line.
+        """
+        offset = -1
+        while len(line) >= 5:
+            offset += 1
+            if len(line) >= 6:
+                six_threat = self.match_six_threat(line)
+                if six_threat:
+                    yield six_threat, offset
+                    del line[0]
+                    continue
+
+            five_threat = self.match_five_threat(line)
+            if five_threat:
+                yield five_threat, offset
+
+            del line[0]
+
+    def find_threats(self, state):
         """
         In progress...
         """
         threats = []
 
-        # Check along rows for a threat
+        # Check along rows for a threat.
         for row in range(self.SIZE):
-            counters = list(state[row])
-
-            while len(counters) >= 5:
-                col = self.SIZE - len(counters)
-                if len(counters) >= 6:
-                    six_threat = self.match_six_threat(counters)
-                    if six_threat:
-                        player, type_, cost_squares, gain_squares = six_threat
-                        threats.append((
-                            player, type_, [
-                                (row, col + cost_square)
-                                for cost_square in cost_squares
-                            ], [
-                                (row, col + gain_square)
-                                for gain_square in gain_squares
-                            ]
-                        ))
-                        del counters[0]
-                        continue
-
-                five_threat = self.match_five_threat(counters)
-                if five_threat:
-                    player, type_, cost_squares, gain_squares = five_threat
-                    threats.append((
-                        player, type_, [
-                            (row, col + cost_square)
-                            for cost_square in cost_squares
-                        ], [
-                            (row, col + gain_square)
-                            for gain_square in gain_squares
-                        ]
-                    ))
-
-                del counters[0]
+            for threat in self.find_threats_in_line(list(state[row])):
+                (player, type_, cost_squares, gain_squares), offset = threat
+                threats.append((
+                    player, type_, [
+                        (row, offset + cost_square)
+                        for cost_square in cost_squares
+                    ], [
+                        (row, offset + gain_square)
+                        for gain_square in gain_squares
+                    ]
+                ))
 
         return threats
 

@@ -119,7 +119,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
-        threats = Gomoku().find_threat(board)
+        threats = Gomoku().find_threats(board)
         self.assertEqual(threats, [])
 
     def test_find_open_four(self):
@@ -144,7 +144,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
-        threats = Gomoku().find_threat(board)
+        threats = Gomoku().find_threats(board)
         self.assertIn(
             (1, 'OPEN_FOUR', [(7, 4), (7, 9)], [(7, 4), (7, 9)]),
             threats,
@@ -171,7 +171,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
-        threats = Gomoku().find_threat(board)
+        threats = Gomoku().find_threats(board)
         self.assertIn(
             (-1, 'FOUR', [(7, 3)], [(7, 3)]),
             threats,
@@ -195,7 +195,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
-        threats = Gomoku().find_threat(board)
+        threats = Gomoku().find_threats(board)
         self.assertEqual(
             threats,
             [(-1, 'FOUR', [(7, 3)], [(7, 3)])],
@@ -219,7 +219,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
-        threats = Gomoku().find_threat(board)
+        threats = Gomoku().find_threats(board)
         self.assertEqual(threats, [
             (-1, 'SPLIT_THREE', [(7, 1), (7, 3), (7, 6)], [(7, 3)])
         ])
