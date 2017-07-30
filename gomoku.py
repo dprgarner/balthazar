@@ -2,11 +2,18 @@ import numpy as np
 from client import GomokuBase
 
 
+# Each tuple is of the form (type, cost_squares, gain_squares), where
+# cost_squares are the squares that a defender should play in to stop the
+# threat being fulfilled, and gain_squares the squares which fulfill the
+# threat.
 SIXES = {
     (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
     (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
     (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5], [2]),
     (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5], [3]),
+
+    # Technically there are no defensive responses to an open four, but the bot
+    # would look a little defeatist if it didn't play in one of them.
     (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
 }
 
@@ -16,6 +23,8 @@ FIVES = {
     (1, 1, 0, 1, 1): ('FOUR', [2], [2]),
     (1, 1, 1, 0, 1): ('FOUR', [3], [3]),
     (1, 1, 1, 1, 0): ('FOUR', [4], [4]),
+
+    # Probably won't be used?
     (1, 1, 1, 1, 1): ('FIVE', [], []),
 }
 
@@ -23,7 +32,7 @@ FIVES = {
 class Gomoku(GomokuBase):
 
     def match_six_threat(self, counters):
-        # Return (player, type, defence_squares, offense_squares).
+        # Return (player, type, cost_squares, gain_squares).
 
         counts = [0, 0, 0]
         for s in range(6):
@@ -42,7 +51,7 @@ class Gomoku(GomokuBase):
             return (player,) + threat
 
     def match_five_threat(self, counters):
-        # Return (player, type, defence_squares, offense_squares).
+        # Return (player, type, cost_squares, gain_squares).
 
         counts = [0, 0, 0]
         for s in range(5):
