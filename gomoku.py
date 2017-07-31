@@ -162,6 +162,10 @@ class Gomoku(GomokuBase):
         number (-1 if this bot is the first player, 1 if the bot is the second
         player), return the index of the place to play (from 0 to 15*15-1).
         """
+
+        # First, find the threats.
+        self.find_threats(state)
+
         next_place = sum(sum(abs(i) for i in state))
         return next_place // self.SIZE, next_place % self.SIZE
 
