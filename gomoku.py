@@ -163,11 +163,54 @@ class Gomoku(GomokuBase):
         player), return the index of the place to play (from 0 to 15*15-1).
         """
 
-        # First, find the threats.
-        self.find_threats(state)
+        # First, find and collate the threats.
+        threats = {}
+        for threat_player, type_, costs, gains in self.find_threats_in_grid(state):
+            if threat_player not in threats:
+                threats[threat_player] = {}
+            if type_ not in threats[threat_player]:
+                threats[threat_player][type_] = []
+            threats[threat_player][type_].extend(
+                gains if threat_player == player else costs
+            )
 
-        next_place = sum(sum(abs(i) for i in state))
-        return next_place // self.SIZE, next_place % self.SIZE
+        # Prioritise an immediate win.
+        if threats.get(player, {}).get('FOUR'):
+            return threats[player]['FOUR'][0]
+
+        # Prioritise blocking an immediate loss.
+        if threats.get(-player, {}).get('FOUR'):
+            return threats[-player]['FOUR'][0]
+
+        # Prioritise making an unblockable open four.
+        if threats.get(player, {}).get('SPLIT_THREE'):
+            return threats[player]['SPLIT_THREE'][0]
+        if threats.get(player, {}).get('THREE'):
+            return threats[player]['THREE'][0]
+
+        # Prioritise preventing an unblockable open four from being made.
+        # The bot must choose the square that appears in the most simultaneous
+        # threats.
+        three_threats = {}
+        for threat in (
+            threats.get(-player, {}).get('SPLIT_THREE', []) +
+            threats.get(-player, {}).get('THREE', [])
+        ):
+            three_threats[threat] = three_threats.get(threat, 0) + 1
+        if three_threats:
+            max_square = None
+            max_concurrent_threats = 0
+            for square, concurrent_threats in three_threats.items():
+                if concurrent_threats > max_concurrent_threats:
+                    max_concurrent_threats = concurrent_threats
+                    max_square = square
+            return max_square
+
+        # In progress.
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
+                if not state[i, j]:
+                    return (i, j)
 
 
 if __name__ == '__main__':
