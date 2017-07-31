@@ -4,7 +4,7 @@ import unittest
 from test_utils import Gomoku, parse_board
 
 
-class TestFindWin(unittest.TestCase):
+class TestRespondToThreat(unittest.TestCase):
 
     def test_respond_to_unblocked_threat(self):
         """
@@ -194,7 +194,7 @@ class TestFindWin(unittest.TestCase):
     def test_block_botched_three_threat(self):
         """
         If the opponent creates two three threats that can be simultaneously
-        blocked, then choose the space that block them both.
+        blocked, then choose the space that blocks them both.
         """
         board = parse_board("""
             . . . . . . . . . . . . . . .

@@ -31,6 +31,40 @@ FIVES = {
 
 
 class Gomoku(GomokuBase):
+    # Tuneable parameters
+    centre_weight = 1
+    centre_gradient = 1
+    cross_weight = 1
+
+    def centre_bias(self):
+        # A numpy array reflecting bias towards the centre.
+        centre = np.zeros((self.SIZE, self.SIZE), dtype=float)
+        max_ = 0
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
+                centre[i, j] = (self.SIZE // 2 - i)**2 + (self.SIZE // 2 - j)**2
+                max_ = max(max_, centre[i, j])
+        centre = (max_ - centre) / max_
+
+        return self.centre_weight * centre ** self.centre_gradient
+
+    def cross_bias(self):
+        # There should be a preference for the spaces diagonally adjacent to the
+        # centre.
+        cross = np.zeros((self.SIZE, self.SIZE), dtype=float)
+        cross[self.SIZE // 2, self.SIZE // 2] = 1
+        cross[self.SIZE // 2 - 1, self.SIZE // 2 - 1] = 1
+        cross[self.SIZE // 2 + 1, self.SIZE // 2 - 1] = 1
+        cross[self.SIZE // 2 - 1, self.SIZE // 2 + 1] = 1
+        cross[self.SIZE // 2 + 1, self.SIZE // 2 + 1] = 1
+        return self.cross_weight * cross
+
+    def get_heuristic_board(self, state, player):
+        heuristic = np.zeros((self.SIZE, self.SIZE), dtype=float)
+        heuristic += self.centre_bias()
+        heuristic += self.cross_bias()
+        heuristic[state != 0] = 0
+        return heuristic
 
     def match_six_threat(self, counters):
         # Return (player, type, cost_squares, gain_squares).
@@ -155,14 +189,7 @@ class Gomoku(GomokuBase):
 
         return threats
 
-    def play_turn(self, state, player):
-        """
-        Given the state (represented as a single list of 15*15 integers, -1 for
-        the first player, 1 for the second player, 0 for empty) and the player
-        number (-1 if this bot is the first player, 1 if the bot is the second
-        player), return the index of the place to play (from 0 to 15*15-1).
-        """
-
+    def response_to_threat(self, state, player):
         # First, find and collate the threats.
         threats = {}
         for threat_player, type_, costs, gains in self.find_threats_in_grid(state):
@@ -206,11 +233,21 @@ class Gomoku(GomokuBase):
                     max_square = square
             return max_square
 
-        # In progress.
-        for i in range(self.SIZE):
-            for j in range(self.SIZE):
-                if not state[i, j]:
-                    return (i, j)
+    def play_turn(self, state, player):
+        """
+        Given the state (represented as a single list of 15*15 integers, -1 for
+        the first player, 1 for the second player, 0 for empty) and the player
+        number (-1 if this bot is the first player, 1 if the bot is the second
+        player), return the index of the place to play (from 0 to 15*15-1).
+        """
+
+        # If there is a threat to respond to, either by the current bot or the
+        # opponent, then respond immediately.
+        threat_response = self.response_to_threat(state, player)
+        if threat_response:
+            return threat_response
+        heuristic = self.get_heuristic_board(state, player)
+        return np.unravel_index(np.argmax(heuristic), (self.SIZE, self.SIZE))
 
 
 if __name__ == '__main__':
