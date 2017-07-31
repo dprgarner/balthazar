@@ -14,7 +14,8 @@ SIXES = {
 
     # Technically there are no defensive responses to an open four, but the bot
     # would look a little defeatist if it didn't play in one of them.
-    (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
+    # Also, is this necessary?
+    # (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
 }
 
 FIVES = {
@@ -25,7 +26,7 @@ FIVES = {
     (1, 1, 1, 1, 0): ('FOUR', [4], [4]),
 
     # Probably won't be used?
-    (1, 1, 1, 1, 1): ('FIVE', [], []),
+    # (1, 1, 1, 1, 1): ('FIVE', [], []),
 }
 
 
@@ -71,7 +72,7 @@ class Gomoku(GomokuBase):
 
     def find_threats_in_line(self, line):
         """
-        This method mutates line.
+        This generator mutates the input list 'line'.
         """
         offset = -1
         while len(line) >= 5:
@@ -80,8 +81,6 @@ class Gomoku(GomokuBase):
                 six_threat = self.match_six_threat(line)
                 if six_threat:
                     yield six_threat, offset
-                    del line[0]
-                    continue
 
             five_threat = self.match_five_threat(line)
             if five_threat:

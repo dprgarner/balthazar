@@ -38,13 +38,6 @@ class TestMatchSixThreatDetecting(unittest.TestCase):
         threat = Gomoku().match_six_threat([0, -1, 0, -1, -1, 0])
         self.assertEqual(threat, (-1, 'SPLIT_THREE', [0, 2, 5], [2]))
 
-    def test_open_four_threat(self):
-        threat = Gomoku().match_six_threat([0, +1, +1, +1, +1, 0])
-        self.assertEqual(threat, (1, 'OPEN_FOUR', [0, 5], [0, 5]))
-
-        threat = Gomoku().match_six_threat([0, -1, -1, -1, -1, 0])
-        self.assertEqual(threat, (-1, 'OPEN_FOUR', [0, 5], [0, 5]))
-
     def test_null_threat(self):
         threat = Gomoku().match_six_threat([+1, +1, +1, +1, 0, 0])
         self.assertIsNone(threat)
@@ -76,13 +69,6 @@ class TestMatchFiveThreatDetecting(unittest.TestCase):
 
         threat = Gomoku().match_five_threat([0, -1, -1, -1, -1])
         self.assertEqual(threat, (-1, 'FOUR', [0], [0]))
-
-    def test_five_threat(self):
-        threat = Gomoku().match_five_threat([1, 1, 1, 1, 1])
-        self.assertEqual(threat, (1, 'FIVE', [], []))
-
-        threat = Gomoku().match_five_threat([-1, -1, -1, -1, -1])
-        self.assertEqual(threat, (-1, 'FIVE', [], []))
 
     def test_null_threat(self):
         threat = Gomoku().match_five_threat([+1, +1, +1, 0, 0])
@@ -124,8 +110,7 @@ class TestFindThreat(unittest.TestCase):
 
     def test_find_open_four(self):
         """
-        Should find an open four (and possibly a four, but that doesn't really
-        matter.)
+        Should find an open four, i.e. two four threats.
         """
         board = np.array([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -145,10 +130,8 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
         threats = Gomoku().find_threats_in_grid(board)
-        self.assertIn(
-            (1, 'OPEN_FOUR', [(7, 4), (7, 9)], [(7, 4), (7, 9)]),
-            threats,
-        )
+        self.assertIn((1, 'FOUR', [(7, 4)], [(7, 4)]), threats)
+        self.assertIn((1, 'FOUR', [(7, 9)], [(7, 9)]), threats)
 
     def test_find_closed_four(self):
         """
@@ -172,10 +155,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
         threats = Gomoku().find_threats_in_grid(board)
-        self.assertIn(
-            (-1, 'FOUR', [(7, 3)], [(7, 3)]),
-            threats,
-        )
+        self.assertIn((-1, 'FOUR', [(7, 3)], [(7, 3)]), threats)
 
     def test_find_closed_four_with_piece_boundaries(self):
         board = np.array([
@@ -196,10 +176,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
         threats = Gomoku().find_threats_in_grid(board)
-        self.assertEqual(
-            threats,
-            [(-1, 'FOUR', [(7, 3)], [(7, 3)])],
-        )
+        self.assertEqual(threats, [(-1, 'FOUR', [(7, 3)], [(7, 3)])])
 
     def test_split_three(self):
         board = np.array([
@@ -243,10 +220,7 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
         threats = Gomoku().find_threats_in_grid(board)
-        self.assertEqual(
-            threats,
-            [(1, 'FOUR', [(3, 0)], [(3, 0)])],
-        )
+        self.assertEqual(threats, [(1, 'FOUR', [(3, 0)], [(3, 0)])])
 
         board = np.array([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -288,18 +262,13 @@ class TestFindThreat(unittest.TestCase):
             [0, 0, 0, 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ])
         threats = Gomoku().find_threats_in_grid(board)
-        self.assertIn(
-            (1, 'OPEN_FOUR', [(0, 9), (5, 14)], [(0, 9), (5, 14)]),
-            threats,
-        )
-        self.assertIn(
-            (-1, 'FOUR', [(13, 3)], [(13, 3)]),
-            threats,
-        )
+        self.assertIn((1, 'FOUR', [(5, 14)], [(5, 14)]), threats)
+        self.assertIn((1, 'FOUR', [(0, 9)], [(0, 9)]), threats)
+        self.assertIn((-1, 'FOUR', [(13, 3)], [(13, 3)]), threats)
 
     def test_down_left_diagonal_threats(self):
         board = np.array([
-            [0, 0, 0, 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1],
+            [0, 0, 0, 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0],
             [0, 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0, 0, 0],
@@ -322,4 +291,4 @@ class TestFindThreat(unittest.TestCase):
             threats,
         )
         self.assertIn((1, 'FOUR', [(11, 3)], [(11, 3)]), threats)
-        self.assertIn((-1, 'FIVE', [], []), threats)
+        self.assertIn((-1, 'FOUR', [(0, 14)], [(0, 14)]), threats)
