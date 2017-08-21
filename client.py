@@ -60,10 +60,10 @@ class Client(object):
             help='The number of consecutive games to play.',
         )
         parser.add_argument(
-            '--basetwenty',
-            action='store_true',
-            default=False,
-            help='Use Adrian\'s base-20 logic.',
+            '--heuristic',
+            type=str,
+            default='default',
+            help='Choose a particular heuristic.',
         )
         args = parser.parse_args()
         for k, v in args._get_kwargs():
@@ -80,6 +80,10 @@ class Client(object):
 
     def connect(self):
         try:
+            self.wins = 0
+            self.losses = 0
+            self.draws = 0
+
             self.ws = create_connection('ws://{}/game'.format(self.hostname))
             print('Bot connected - waiting to start game...')
             self.send({
@@ -94,7 +98,21 @@ class Client(object):
             for i in range(self.ngames):
                 self.recv_type('Started')
                 print('Game {} started'.format(i + 1))
-                self.play_game((self.index + i) % 2 == 0)
+                winner = self.play_game((self.index + i) % 2 == 0)
+                if winner == -2:
+                    print('The game was a draw.')
+                    self.draws += 1
+                elif self.index == winner:
+                    print('Your bot has won the game.')
+                    self.wins += 1
+                else:
+                    print('Your bot has lost the game.')
+                    self.losses +=1
+                print('{} - {}{}'.format(
+                    self.wins,
+                    self.losses,
+                    ' ({} draws)'.format(self.draws) if self.draws else ''
+                ))
         finally:
             if hasattr(self, 'ws') and self.ws.connected:
                 self.ws.close()
@@ -169,14 +187,7 @@ class GomokuBase(Client):
                     player_number if is_my_turn else -player_number
                 )
                 if 'winner' in update:
-                    won = self.index == update.get('winner')
-                    if update.get('winner') == -2:
-                        print('The game was a draw.')
-                    else:
-                        print('Your bot has {} the game'.format(
-                            'won' if won else 'lost'
-                        ))
-                    return
+                    return update.get('winner')
         finally:
             is_first_player_black = (
                 is_first_player and self.index == 0 or

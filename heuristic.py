@@ -12,8 +12,8 @@ class Heuristic:
     centre_gradient = 0.1
     cross_weight = 1
 
-    potential_three_player = 150
-    potential_three_opponent = 75
+    potential_three_player = 20
+    potential_three_opponent = 15
 
     potential_two_player = 20
     potential_two_opponent = 15
@@ -137,9 +137,17 @@ class Heuristic:
         return heuristic
 
 
+class HighThreesHeuristic(Heuristic):
+    """
+    Weights the values of threes more highly.
+    """
+    potential_three_player = 100
+    potential_three_opponent = 50
+
+
 class BaseTwentyHeuristic(Heuristic):
     """
-    As above, but using Adrian's bot's values.
+    As above, but (maybe) using Adrian's bot's values.
     """
     potential_three_player = int('1111111', 20)
     potential_three_opponent = int('111111', 20)
@@ -151,3 +159,10 @@ class BaseTwentyHeuristic(Heuristic):
     potential_one_opponent = int('11', 20)
 
     potential_empty = int('1', 20)
+
+
+HEURISTICS = {
+    'default': Heuristic,
+    'basetwenty': BaseTwentyHeuristic,
+    'highthrees': HighThreesHeuristic,
+}

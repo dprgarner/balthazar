@@ -4,6 +4,7 @@ import gomoku
 
 
 class Gomoku(gomoku.Gomoku):
+    heuristic = 'default'
     # Do not connect or set args.
 
     def set_args(self):
