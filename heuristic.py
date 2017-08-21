@@ -133,7 +133,7 @@ class Heuristic:
         heuristic += self.centre_bias()
         heuristic += self.cross_bias()
         heuristic += self.add_possible_fives_bias(state, player)
-        heuristic[state != 0] = 0
+        heuristic[state != 0] = -1
         return heuristic
 
 
