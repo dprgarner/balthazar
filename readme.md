@@ -1,6 +1,6 @@
-# Oapy
+# Balthazar
 
-A simple Python client for playing Gomoku on Aoire.
+My bot for playing Gomoku on Aoire. Forked from the baseline client, [Oapy](https://github.com/dprgarner/oapy).
 
 Full details of the Aoire protocol here: https://github.com/paul-nechifor/aoire
 
