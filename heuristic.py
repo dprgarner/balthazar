@@ -2,6 +2,10 @@ import numpy as np
 
 
 class Heuristic:
+    """
+    A class for getting a rough, non-depth-searching value for each counter on
+    the board.
+    """
 
     # Tuneable parameters.
     centre_weight = 1
@@ -16,6 +20,10 @@ class Heuristic:
 
     potential_one_player = 3
     potential_one_opponent = 1
+    potential_empty = 0
+
+    def __init__(self, size):
+        self.SIZE = size
 
     @property
     def potential_weights(self):
@@ -33,6 +41,8 @@ class Heuristic:
             # five.
             (1, 4, 0): self.potential_one_opponent,
             (0, 4, 1): self.potential_one_player,
+
+            (0, 5, 0): self.potential_empty,
         }
         return self._potential_weights
 
@@ -125,3 +135,19 @@ class Heuristic:
         heuristic += self.add_possible_fives_bias(state, player)
         heuristic[state != 0] = 0
         return heuristic
+
+
+class BaseTwentyHeuristic(Heuristic):
+    """
+    As above, but using Adrian's bot's values.
+    """
+    potential_three_player = int('1111111', 20)
+    potential_three_opponent = int('111111', 20)
+
+    potential_two_player = int('11111', 20)
+    potential_two_opponent = int('1111', 20)
+
+    potential_one_player = int('111', 20)
+    potential_one_opponent = int('11', 20)
+
+    potential_empty = int('1', 20)

@@ -17,14 +17,14 @@ class Client(object):
         """
         All messages to the server must be JSON-serialisable.
         """
-        self.ws.send(json.dumps(msg))
+        msg_str = json.dumps(msg)
+        self.ws.send(msg_str)
 
     def recv(self):
         """
         All messages from the server are valid JSON.
         """
         msg = self.ws.recv()
-        print(msg)
         return (
             json.loads(msg)
             if msg
@@ -59,16 +59,23 @@ class Client(object):
             default=6,
             help='The number of consecutive games to play.',
         )
+        parser.add_argument(
+            '--basetwenty',
+            action='store_true',
+            default=False,
+            help='Use Adrian\'s base-20 logic.',
+        )
         args = parser.parse_args()
         for k, v in args._get_kwargs():
             setattr(self, k, v)
 
-    def recv_type(self, type_):
+    def recv_type(self, *types):
         """
         Assert that the correct message is received.
         """
         msg = self.recv()
-        assert msg and msg['type'] == type_, msg
+        assert msg, 'Websocket closing'
+        assert msg['type'] in types, '{} not in types: {}'.format(msg, types)
         return msg
 
     def connect(self):

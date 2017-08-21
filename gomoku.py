@@ -1,11 +1,23 @@
+import random
+
 import numpy as np
 
 from client import GomokuBase
 from threat_response import ThreatResponse
-from heuristic import Heuristic
+from heuristic import Heuristic, BaseTwentyHeuristic
 
 
-class Gomoku(Heuristic, ThreatResponse, GomokuBase):
+class Gomoku(ThreatResponse, GomokuBase):
+
+    @property
+    def heuristic(self):
+        if not hasattr(self, '_heuristic'):
+            self._heuristic = (
+                Heuristic(self.SIZE)
+                if getattr(self, 'basetwenty', False)
+                else BaseTwentyHeuristic(self.SIZE)
+            )
+        return self._heuristic
 
     def play_turn(self, state, player):
         """
@@ -21,8 +33,16 @@ class Gomoku(Heuristic, ThreatResponse, GomokuBase):
         if threat_response:
             return threat_response
 
-        heuristic = self.get_heuristic_board(state, player)
-        return np.unravel_index(np.argmax(heuristic), (self.SIZE, self.SIZE))
+        heuristic = self.heuristic.get_heuristic_board(state, player)
+
+        max_weight = np.amax(heuristic)
+        max_indices = [
+            (i, j)
+            for i in range(self.SIZE)
+            for j in range(self.SIZE)
+            if heuristic[i, j] == max_weight
+        ]
+        return random.choice(max_indices)
 
 
 if __name__ == '__main__':

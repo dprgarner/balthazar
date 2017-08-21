@@ -1,32 +1,38 @@
 import numpy as np
 
 
+# Each tuple is of the form (type, cost_squares, gain_squares), where
+# cost_squares are the squares that a defender should play in to stop the
+# threat being fulfilled, and gain_squares the squares which fulfill the
+# threat.
+SIXES = {
+    (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
+    (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
+    (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5], [2]),
+    (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5], [3]),
+
+    # Is this necessary?
+    # (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
+}
+
+
+FIVES = {
+    (0, 1, 1, 1, 1): ('FOUR', [0], [0]),
+    (1, 0, 1, 1, 1): ('FOUR', [1], [1]),
+    (1, 1, 0, 1, 1): ('FOUR', [2], [2]),
+    (1, 1, 1, 0, 1): ('FOUR', [3], [3]),
+    (1, 1, 1, 1, 0): ('FOUR', [4], [4]),
+
+    # Probably won't be used?
+    # (1, 1, 1, 1, 1): ('FIVE', [], []),
+}
+
+
 class ThreatResponse:
-    # Each tuple is of the form (type, cost_squares, gain_squares), where
-    # cost_squares are the squares that a defender should play in to stop the
-    # threat being fulfilled, and gain_squares the squares which fulfill the
-    # threat.
-    SIXES = {
-        (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
-        (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
-        (0, 1, 0, 1, 1, 0): ('SPLIT_THREE', [0, 2, 5], [2]),
-        (0, 1, 1, 0, 1, 0): ('SPLIT_THREE', [0, 3, 5], [3]),
-
-        # Is this necessary?
-        # (0, 1, 1, 1, 1, 0): ('OPEN_FOUR', [0, 5], [0, 5]),
-    }
-
-    FIVES = {
-        (0, 1, 1, 1, 1): ('FOUR', [0], [0]),
-        (1, 0, 1, 1, 1): ('FOUR', [1], [1]),
-        (1, 1, 0, 1, 1): ('FOUR', [2], [2]),
-        (1, 1, 1, 0, 1): ('FOUR', [3], [3]),
-        (1, 1, 1, 1, 0): ('FOUR', [4], [4]),
-
-        # Probably won't be used?
-        # (1, 1, 1, 1, 1): ('FIVE', [], []),
-    }
-
+    """
+    A class that handles whether a player needs to immediately respond to a
+    given state on the board.
+    """
     def match_six_threat(self, counters):
         # Return (player, type, cost_squares, gain_squares).
 
@@ -41,7 +47,7 @@ class ThreatResponse:
         player = 1 if counts[2] else -1
 
         abs_six = tuple(abs(counters[s]) for s in range(6))
-        threat = self.SIXES.get(abs_six)
+        threat = SIXES.get(abs_six)
 
         if threat:
             return (player,) + threat
@@ -60,7 +66,7 @@ class ThreatResponse:
         player = 1 if counts[2] else -1
 
         abs_five = tuple(abs(counters[s]) for s in range(5))
-        threat = self.FIVES.get(abs_five)
+        threat = FIVES.get(abs_five)
 
         if threat:
             return (player,) + threat

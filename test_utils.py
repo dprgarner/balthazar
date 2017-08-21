@@ -4,8 +4,12 @@ import gomoku
 
 
 class Gomoku(gomoku.Gomoku):
-    def __init__(self):
-        # Do not connect or set args.
+    # Do not connect or set args.
+
+    def set_args(self):
+        pass
+
+    def connect(self):
         pass
 
 

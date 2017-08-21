@@ -1,6 +1,7 @@
 import numpy as np
 import unittest
 
+from heuristic import Heuristic
 from test_utils import Gomoku, parse_board
 
 
@@ -57,7 +58,7 @@ class TestHeuristics(unittest.TestCase):
 
 class TestPossibleFivesHeuristics(unittest.TestCase):
 
-    def test_possible_fives(self):
+    def test_possible_fives_when_following_up(self):
         """
         Check that the same rows, columns, and diagonals of an existing square
         are preferred.
@@ -80,11 +81,12 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
 
-        class GomokuWithBias(Gomoku):
+        class HeuristicWithBias(Heuristic):
             potential_one_player = 1
             potential_one_opponent = 0
+            potential_empty = 0
 
-        biases = GomokuWithBias().add_possible_fives_bias(board, 1)
+        biases = HeuristicWithBias(15).add_possible_fives_bias(board, 1)
         # The centre is a nonsense result, so ignore.
         biases[7, 7] = 0
         expected = np.array([
@@ -104,9 +106,10 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ], dtype=float)
+        print(biases)
         self.assertTrue(np.all(biases == expected))
 
-    def test_possible_fives(self):
+    def test_possible_fives_when_responding_to_opponent(self):
         """
         Check that the same rows, columns, and diagonals of an opponent's square
         are preferred.
@@ -129,11 +132,12 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
 
-        class GomokuWithBias(Gomoku):
+        class HeuristicWithBias(Heuristic):
             potential_one_player = 0
             potential_one_opponent = 1
+            potential_empty = 0
 
-        biases = GomokuWithBias().add_possible_fives_bias(board, -1)
+        biases = HeuristicWithBias(15).add_possible_fives_bias(board, -1)
         # The centre is a nonsense result, so ignore.
         biases[7, 7] = 0
         expected = np.array([
