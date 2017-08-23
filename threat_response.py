@@ -156,6 +156,17 @@ class ThreatResponse:
 
         return threats
 
+    def choose_threat(self, state, player, threats):
+        # If there is a choice of threats to respond to, choose the one with
+        # the highest heuristic value.
+        heuristic = self.cached_heuristic.get_heuristic_board(state, player)
+        max_value = -1
+        for threat in threats:
+            if heuristic[threat] > max_value:
+                max_value = heuristic[threat]
+                max_threat = threat
+        return max_threat
+
     def response_to_threat(self, state, player):
         # First, find and collate the threats.
         threats = {}
@@ -170,32 +181,20 @@ class ThreatResponse:
 
         # Prioritise an immediate win.
         if threats.get(player, {}).get('FOUR'):
-            return threats[player]['FOUR'][0]
+            return self.choose_threat(state, player, threats[player]['FOUR'])
 
         # Prioritise blocking an immediate loss.
         if threats.get(-player, {}).get('FOUR'):
-            return threats[-player]['FOUR'][0]
+            return self.choose_threat(state, player, threats[-player]['FOUR'])
 
         # Prioritise making an unblockable open four.
         if threats.get(player, {}).get('SPLIT_THREE'):
-            return threats[player]['SPLIT_THREE'][0]
+            return self.choose_threat(state, player, threats[player]['SPLIT_THREE'])
         if threats.get(player, {}).get('THREE'):
-            return threats[player]['THREE'][0]
+            return self.choose_threat(state, player, threats[player]['THREE'])
 
         # Prioritise preventing an unblockable open four from being made.
-        # The bot must choose the square that appears in the most simultaneous
-        # threats.
-        three_threats = {}
-        for threat in (
-            threats.get(-player, {}).get('SPLIT_THREE', []) +
-            threats.get(-player, {}).get('THREE', [])
-        ):
-            three_threats[threat] = three_threats.get(threat, 0) + 1
-        if three_threats:
-            max_square = None
-            max_concurrent_threats = 0
-            for square, concurrent_threats in three_threats.items():
-                if concurrent_threats > max_concurrent_threats:
-                    max_concurrent_threats = concurrent_threats
-                    max_square = square
-            return max_square
+        if threats.get(-player, {}).get('SPLIT_THREE'):
+            return self.choose_threat(state, player, threats[-player]['SPLIT_THREE'])
+        if threats.get(-player, {}).get('THREE'):
+            return self.choose_threat(state, player, threats[-player]['THREE'])
