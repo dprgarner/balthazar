@@ -8,6 +8,10 @@ from threat_potential import ThreatPotential
 from threat_response import ThreatResponse
 
 
+float_formatter = lambda x: "%.1f" % x
+np.set_printoptions(formatter={'float_kind': float_formatter})
+
+
 class Gomoku(ThreatResponse, GomokuBase):
 
     TRIALS = 12
@@ -54,9 +58,6 @@ class Gomoku(ThreatResponse, GomokuBase):
             self.threat_potential.get_potential(state, move)
             for move in best_options
         ]
-
-        # float_formatter = lambda x: "%.1f" % x
-        # np.set_printoptions(formatter={'float_kind':float_formatter})
 
         max_weight = np.amax(weights)
         max_indices = [

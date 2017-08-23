@@ -22,6 +22,8 @@ def parse_board(string):
         'X': 1,
         'O': -1,
         '.': 0,
+        '?': 0,
+        '!': 0,
     }
     relevant_chars = lookup.keys()
     return np.array(

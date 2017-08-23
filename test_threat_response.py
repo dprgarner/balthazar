@@ -18,7 +18,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . X X X X . . . . . . . . . .
+            ! X X X X ! . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -45,7 +45,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . X X X X . . . . . . . . . .
+            ! X X X X . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -67,7 +67,7 @@ class TestRespondToThreat(unittest.TestCase):
         board = parse_board("""
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . O O O O X . . . . . . . . .
+            ! O O O O X . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -95,7 +95,7 @@ class TestRespondToThreat(unittest.TestCase):
             . O O O . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . . X X . X . . . . . . . .
+            . . . X X ! X . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -121,7 +121,7 @@ class TestRespondToThreat(unittest.TestCase):
             . O O O . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . . X X X . . . . . . . . .
+            . . ! X X X ! . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -145,7 +145,7 @@ class TestRespondToThreat(unittest.TestCase):
         board = parse_board("""
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . O O O . . . . . . . . . .
+            . ! O O O ! . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -172,7 +172,7 @@ class TestRespondToThreat(unittest.TestCase):
         board = parse_board("""
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . O O . O . . . . . . . . .
+            . ! O O ! O ! . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -199,7 +199,7 @@ class TestRespondToThreat(unittest.TestCase):
         board = parse_board("""
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . O O . O . . . . . . . . .
+            . . O O ! O . . . . . . . . .
             . . . . O . . . . . . . . . .
             . . . . O . . . . . . . . . .
             . . . . O . . . . . . . . . .
