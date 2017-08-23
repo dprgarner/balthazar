@@ -156,18 +156,18 @@ class ThreatResponse:
 
         return threats
 
-    def choose_threat(self, state, player, threats):
+    def choose_threat(self, state, threats):
         # If there is a choice of threats to respond to, choose the one with
         # the highest heuristic value.
-        heuristic = self.cached_heuristic.get_heuristic_board(state, player)
+        weights = self.cached_heuristic.get_heuristic_board(state)
         max_value = -1
         for threat in threats:
-            if heuristic[threat] > max_value:
-                max_value = heuristic[threat]
+            if weights[threat] > max_value:
+                max_value = weights[threat]
                 max_threat = threat
         return max_threat
 
-    def response_to_threat(self, state, player):
+    def response_to_threat(self, state):
         # First, find and collate the threats.
         threats = {}
         for threat_player, type_, costs, gains in self.find_threats_in_grid(state):
@@ -176,25 +176,25 @@ class ThreatResponse:
             if type_ not in threats[threat_player]:
                 threats[threat_player][type_] = []
             threats[threat_player][type_].extend(
-                gains if threat_player == player else costs
+                gains if threat_player == 1 else costs
             )
 
         # Prioritise an immediate win.
-        if threats.get(player, {}).get('FOUR'):
-            return self.choose_threat(state, player, threats[player]['FOUR'])
+        if threats.get(1, {}).get('FOUR'):
+            return self.choose_threat(state, threats[1]['FOUR'])
 
         # Prioritise blocking an immediate loss.
-        if threats.get(-player, {}).get('FOUR'):
-            return self.choose_threat(state, player, threats[-player]['FOUR'])
+        if threats.get(-1, {}).get('FOUR'):
+            return self.choose_threat(state, threats[-1]['FOUR'])
 
         # Prioritise making an unblockable open four.
-        if threats.get(player, {}).get('SPLIT_THREE'):
-            return self.choose_threat(state, player, threats[player]['SPLIT_THREE'])
-        if threats.get(player, {}).get('THREE'):
-            return self.choose_threat(state, player, threats[player]['THREE'])
+        if threats.get(1, {}).get('SPLIT_THREE'):
+            return self.choose_threat(state, threats[1]['SPLIT_THREE'])
+        if threats.get(1, {}).get('THREE'):
+            return self.choose_threat(state, threats[1]['THREE'])
 
         # Prioritise preventing an unblockable open four from being made.
-        if threats.get(-player, {}).get('SPLIT_THREE'):
-            return self.choose_threat(state, player, threats[-player]['SPLIT_THREE'])
-        if threats.get(-player, {}).get('THREE'):
-            return self.choose_threat(state, player, threats[-player]['THREE'])
+        if threats.get(-1, {}).get('SPLIT_THREE'):
+            return self.choose_threat(state, threats[-1]['SPLIT_THREE'])
+        if threats.get(-1, {}).get('THREE'):
+            return self.choose_threat(state, threats[-1]['THREE'])

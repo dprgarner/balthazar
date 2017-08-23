@@ -28,7 +28,7 @@ class TestHeuristics(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
         self.assertEqual(turn, (7, 7))
 
     def test_cross_bias(self):
@@ -43,7 +43,7 @@ class TestHeuristics(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . . . . . . X . . . . . . .
+            . . . . . . . O . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -52,7 +52,7 @@ class TestHeuristics(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, -1)
+        turn = Gomoku().play_turn(board)
         self.assertIn(turn, [(6, 6), (8, 8), (8, 6), (6, 8)])
 
 
@@ -86,7 +86,7 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             potential_one_opponent = 0
             potential_empty = 0
 
-        biases = HeuristicWithBias(15).add_possible_fives_bias(board, 1)
+        biases = HeuristicWithBias(15).add_possible_fives_bias(board)
         # The centre is a nonsense result, so ignore.
         biases[7, 7] = 0
         expected = np.array([
@@ -122,7 +122,7 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
-            . . . . . . . X . . . . . . .
+            . . . . . . . O . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -137,7 +137,7 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             potential_one_opponent = 1
             potential_empty = 0
 
-        biases = HeuristicWithBias(15).add_possible_fives_bias(board, -1)
+        biases = HeuristicWithBias(15).add_possible_fives_bias(board)
         # The centre is a nonsense result, so ignore.
         biases[7, 7] = 0
         expected = np.array([

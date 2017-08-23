@@ -125,14 +125,14 @@ class GomokuBase(Client):
     SIZE = 15
     GAME_TYPE = 'Gomoku'
 
-    def render_state(self, state, is_first_player_black):
+    def render_state(self, state, is_player_black):
         """
         Return a pretty string representation of the board.
         """
         MOVES_STR = {
-            -1 if is_first_player_black else 1: '▒▒',
+            -1 if is_player_black else 1: '██',
             0: '  ',
-            1 if is_first_player_black else -1: '██',
+            1 if is_player_black else -1: '▒▒',
         }
 
         numbers = '   ' + ''.join(
@@ -178,22 +178,15 @@ class GomokuBase(Client):
                 is_my_turn = bool(turn_number % 2) != is_first_player
 
                 if is_my_turn:
-                    (i, j) = self.play_turn(state, player_number)
+                    # From the perspective of the brain, the bot is always 1,
+                    # and the opponent -1.
+                    (i, j) = self.play_turn(state)
                     self.send({'type': 'Move', 'move': int(15 * i + j)})
 
                 update = self.recv_type('PlayerMove')
                 (i, j) = update['move'] // self.SIZE, update['move'] % self.SIZE
-                state[i, j] = (
-                    player_number if is_my_turn else -player_number
-                )
+                state[i, j] = 1 if is_my_turn else -1
                 if 'winner' in update:
                     return update.get('winner')
         finally:
-            is_first_player_black = (
-                is_first_player and self.index == 0 or
-                not is_first_player and self.index == 1
-            )
-            print(self.render_state(state, is_first_player_black))
-
-    def play_turn(self, state, player):
-        raise NotImplementedError()
+            print(self.render_state(state, self.index == 0))

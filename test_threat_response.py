@@ -27,7 +27,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         # It doesn't matter which one the bot picks: they both win.
         self.assertIn(turn, [(7, 0), (7, 5)])
@@ -54,7 +54,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         # It doesn't matter which one the bot picks: they both win.
         self.assertIn(turn, [(7, 0), (7, 5)])
@@ -81,7 +81,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
         self.assertEqual(turn, (2, 0))
 
     def test_convert_split_three_to_open_four(self):
@@ -106,7 +106,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         self.assertEqual(turn, (5, 5))
 
@@ -132,7 +132,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         # Either turn works.
         self.assertIn(turn, [(5, 2), (5, 6)])
@@ -159,7 +159,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         # Either turn works.
         self.assertIn(turn, [(2, 1), (2, 5)])
@@ -186,7 +186,7 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         # Either turn works.
         self.assertIn(turn, [(2, 1), (2, 4), (2, 6)])
@@ -213,6 +213,6 @@ class TestRespondToThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        turn = Gomoku().play_turn(board, 1)
+        turn = Gomoku().play_turn(board)
 
         self.assertEqual(turn, (2, 4))

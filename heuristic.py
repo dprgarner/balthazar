@@ -69,10 +69,10 @@ class Heuristic:
         cross[self.SIZE // 2 + 1, self.SIZE // 2 + 1] = 1
         return self.cross_weight * cross
 
-    def find_potentials_in_line(self, line, player):
+    def find_potentials_in_line(self, line):
         counts = [0, 0, 0]
         for i in range(len(line)):
-            counts[player * line[i] + 1] += 1
+            counts[line[i] + 1] += 1
             if i > 4:
                 counts[line[i - 5] + 1] -= 1
 
@@ -81,34 +81,25 @@ class Heuristic:
                 if weight:
                     yield i - 4, weight
 
-    def add_possible_fives_bias(self, state, player):
+    def add_possible_fives_bias(self, state):
         biases = np.zeros((self.SIZE, self.SIZE), dtype=float)
 
         # Check along rows for potential fives.
         for row in range(self.SIZE):
-            for offset, weight in self.find_potentials_in_line(
-                state[row],
-                player,
-            ):
+            for offset, weight in self.find_potentials_in_line(state[row]):
                 for i in range(5):
                     biases[row, offset + i] += weight
 
         # Check along columns...
         for col in range(self.SIZE):
-            for offset, weight in self.find_potentials_in_line(
-                state[:, col],
-                player,
-            ):
+            for offset, weight in self.find_potentials_in_line(state[:, col]):
                 for i in range(5):
                     biases[offset + i, col] += weight
 
         # Check along down-right diagonals...
         for diag_offset in range(-self.SIZE + 5, self.SIZE - 4):
             diag_line = list(np.diagonal(state, offset=diag_offset))
-            for offset, weight in self.find_potentials_in_line(
-                diag_line,
-                player,
-            ):
+            for offset, weight in self.find_potentials_in_line(diag_line):
                 row = max(0, -diag_offset) + offset
                 col = max(0, diag_offset) + offset
                 for i in range(5):
@@ -117,10 +108,7 @@ class Heuristic:
         # Check along down-right diagonals...
         for diag_offset in range(-self.SIZE + 5, self.SIZE - 4):
             diag_line = list(np.diagonal(state[::-1], offset=diag_offset))
-            for offset, weight in self.find_potentials_in_line(
-                diag_line,
-                player,
-            ):
+            for offset, weight in self.find_potentials_in_line(diag_line):
                 row = self.SIZE - 1 - max(0, -diag_offset) - offset
                 col = max(0, diag_offset) + offset
                 for i in range(5):
@@ -128,11 +116,11 @@ class Heuristic:
 
         return biases
 
-    def get_heuristic_board(self, state, player):
+    def get_heuristic_board(self, state):
         heuristic = np.zeros((self.SIZE, self.SIZE), dtype=float)
         heuristic += self.centre_bias()
         heuristic += self.cross_bias()
-        heuristic += self.add_possible_fives_bias(state, player)
+        heuristic += self.add_possible_fives_bias(state)
         heuristic[state != 0] = -1
         return heuristic
 
