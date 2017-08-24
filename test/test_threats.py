@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from test_utils import Heuristic, parse_board
+from test.utils import Heuristic, parse_board
 from threat_response import ThreatResponse
 
 

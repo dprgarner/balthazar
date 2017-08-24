@@ -16,21 +16,6 @@ class Gomoku(GomokuBase):
 
     TRIALS = 12
 
-    @property
-    def threat_potential(self):
-        if not hasattr(self, '_threat_potential'):
-            self._threat_potential = ThreatPotential(self.SIZE)
-        return self._threat_potential
-
-    @property
-    def cached_heuristic(self):
-        if not hasattr(self, '_heuristic'):
-            self._heuristic = (
-                HEURISTICS.get(self.heuristic)(self.SIZE)
-            )
-            print('Using heuristic:', self.heuristic)
-        return self._heuristic
-
     def play_turn(self, state):
         """
         Given the state (represented as a single list of 15*15 integers, 1 for
@@ -52,9 +37,10 @@ class Gomoku(GomokuBase):
             (x // self.SIZE, x % self.SIZE)
             for x in weights.argsort(axis=None)[-self.TRIALS:][::-1]
         ]
-
+        
+        threat_potential = ThreatPotential(self.SIZE)
         threat_potentials = [
-            self.threat_potential.get_potential(state, move)
+            threat_potential.calculate(state, move)
             for move in best_options
         ]
 

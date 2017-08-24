@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from test_utils import Gomoku, parse_board
+from test.utils import Gomoku, parse_board
 
 
 class TestRespondToThreat(unittest.TestCase):

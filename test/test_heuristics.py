@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 
 from heuristic import Heuristic
-from test_utils import Gomoku, parse_board
+from test.utils import Gomoku, parse_board
 
 
 class TestHeuristics(unittest.TestCase):
