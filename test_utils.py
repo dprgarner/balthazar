@@ -35,5 +35,5 @@ class Heuristic:
         self.SIZE = SIZE
 
     # Null heuristic board.
-    def get_heuristic_board(self, state):
+    def calculate(self, state):
         return np.zeros((self.SIZE, self.SIZE))

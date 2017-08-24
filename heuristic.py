@@ -116,7 +116,7 @@ class Heuristic:
 
         return biases
 
-    def get_heuristic_board(self, state):
+    def calculate(self, state):
         heuristic = np.zeros((self.SIZE, self.SIZE), dtype=float)
         heuristic += self.centre_bias()
         heuristic += self.cross_bias()

@@ -31,28 +31,23 @@ class Gomoku(GomokuBase):
             print('Using heuristic:', self.heuristic)
         return self._heuristic
 
-    def get_heuristic_board(self):
-        return Heuristics(self.SIZE).get_heuristic_board(state)
-
     def play_turn(self, state):
         """
         Given the state (represented as a single list of 15*15 integers, 1 for
         the current player, -1 for the opponent), return the index pair (i, j)
         of the place to play, where i, j are integers from 0 to 14.
         """
-        player = 1
-
-        heuristic = HEURISTICS[self.heuristic](self.SIZE)
+        Heuristic = HEURISTICS[self.heuristic]
+        weights = Heuristic(self.SIZE).calculate(state)
 
         # If there is a threat to respond to, either by the current bot or the
         # opponent, then respond immediately.
-        threat_responder = ThreatResponse(self.SIZE, heuristic)
+        threat_responder = ThreatResponse(self.SIZE, weights)
         threat_response = threat_responder.response_to_threat(state)
         if threat_response:
             return threat_response
 
         # Check the most likely squares for gain
-        weights = heuristic.get_heuristic_board(state)
         best_options = [
             (x // self.SIZE, x % self.SIZE)
             for x in weights.argsort(axis=None)[-self.TRIALS:][::-1]

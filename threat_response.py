@@ -33,9 +33,9 @@ class ThreatResponse:
     A class that handles whether a player needs to immediately respond to a
     given state on the board.
     """
-    def __init__(self, SIZE, heuristic):
+    def __init__(self, SIZE, weights):
         self.SIZE = SIZE
-        self.heuristic = heuristic
+        self.weights = weights
 
     def match_six_threat(self, counters):
         # Return (player, type, cost_squares, gain_squares).
@@ -162,12 +162,11 @@ class ThreatResponse:
 
     def choose_threat(self, state, threats):
         # If there is a choice of threats to respond to, choose the one with
-        # the highest heuristic value.
-        weights = self.heuristic.get_heuristic_board(state)
+        # the highest weight.
         max_value = -1
         for threat in threats:
-            if weights[threat] > max_value:
-                max_value = weights[threat]
+            if self.weights[threat] > max_value:
+                max_value = self.weights[threat]
                 max_threat = threat
         return max_threat
 
