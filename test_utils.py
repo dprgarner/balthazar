@@ -29,3 +29,11 @@ def parse_board(string):
     return np.array(
         [lookup[c] for c in string if c in relevant_chars]
     ).reshape(Gomoku.SIZE, Gomoku.SIZE)
+
+class Heuristic:
+    def __init__(self, SIZE):
+        self.SIZE = SIZE
+
+    # Null heuristic board.
+    def get_heuristic_board(self, state):
+        return np.zeros((self.SIZE, self.SIZE))

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class ThreatPotential:
     def __init__(self, SIZE):
         self.SIZE = SIZE

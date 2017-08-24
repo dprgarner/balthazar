@@ -12,7 +12,7 @@ float_formatter = lambda x: "%.1f" % x
 np.set_printoptions(formatter={'float_kind': float_formatter})
 
 
-class Gomoku(ThreatResponse, GomokuBase):
+class Gomoku(GomokuBase):
 
     TRIALS = 12
 
@@ -31,6 +31,9 @@ class Gomoku(ThreatResponse, GomokuBase):
             print('Using heuristic:', self.heuristic)
         return self._heuristic
 
+    def get_heuristic_board(self):
+        return Heuristics(self.SIZE).get_heuristic_board(state)
+
     def play_turn(self, state):
         """
         Given the state (represented as a single list of 15*15 integers, 1 for
@@ -39,16 +42,17 @@ class Gomoku(ThreatResponse, GomokuBase):
         """
         player = 1
 
+        heuristic = HEURISTICS[self.heuristic](self.SIZE)
+
         # If there is a threat to respond to, either by the current bot or the
         # opponent, then respond immediately.
-        threat_response = self.response_to_threat(state)
+        threat_responder = ThreatResponse(self.SIZE, heuristic)
+        threat_response = threat_responder.response_to_threat(state)
         if threat_response:
             return threat_response
 
         # Check the most likely squares for gain
-        weights = self.cached_heuristic.get_heuristic_board(state)
-        choices = []
-
+        weights = heuristic.get_heuristic_board(state)
         best_options = [
             (x // self.SIZE, x % self.SIZE)
             for x in weights.argsort(axis=None)[-self.TRIALS:][::-1]
