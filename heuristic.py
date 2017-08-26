@@ -13,6 +13,8 @@ class Heuristic:
     centre_gradient = 0.1
     cross_weight = 1
 
+    randomness = 0.5
+
     potential_three_player = 20
     potential_three_opponent = 15
 
@@ -126,20 +128,24 @@ class Heuristic:
         weights[state != 0] = -1
         return weights
 
-    def choose(self, moves, randomness=0):
+    def choose(self, moves):
         def tweak_randomly(x):
             if x == -1.0:
                 return -1.0
-            return max(0, x + random.random() * 2 * randomness - randomness)
+            return max(
+                0, x + random.random() * 2 * self.randomness - self.randomness
+            )
 
         weights = self._weights
-        if randomness:
+        max_value = -1
+        if self.randomness:
             r = np.vectorize(tweak_randomly)
             weights = r(self._weights.copy())
+            max_value -= self.randomness
 
         # If there is a choice of squares to play in, choose the one with the
         # highest weight.
-        max_value = -1 - randomness
+
         for move in moves:
             if weights[move] > max_value:
                 max_value = weights[move]
@@ -183,8 +189,16 @@ class BaseTwentyHeuristic(Heuristic):
     potential_empty = int('1', 20)
 
 
+class DeterministicHeuristic(Heuristic):
+    """
+    No random tweaking.
+    """
+    randomness = 0
+
+
 HEURISTICS = {
     'default': Heuristic,
     'basetwenty': BaseTwentyHeuristic,
     'highthrees': HighThreesHeuristic,
+    'deterministic': DeterministicHeuristic,
 }

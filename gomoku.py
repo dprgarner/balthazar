@@ -91,7 +91,7 @@ class Gomoku(GomokuBase):
             (i, j)
             for i in range(self.SIZE)
             for j in range(self.SIZE)
-        ], randomness=self.randomness)
+        ])
 
 
 if __name__ == '__main__':

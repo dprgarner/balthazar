@@ -65,12 +65,6 @@ class Client(object):
             default='default',
             help='Choose a particular heuristic.',
         )
-        parser.add_argument(
-            '--randomness',
-            type=float,
-            default=0.0,
-            help='Distort the heuristic randomly.',
-        )
         args = parser.parse_args()
         for k, v in args._get_kwargs():
             setattr(self, k, v)
