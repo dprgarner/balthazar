@@ -5,13 +5,29 @@ import gomoku
 
 class Gomoku(gomoku.Gomoku):
     heuristic = 'default'
-    # Do not connect or set args.
 
+    RANDOMNESS = 0
+
+    # Do not connect or set args.
     def set_args(self):
         pass
 
     def connect(self):
         pass
+
+
+def clear_falsy(dict_):
+    """
+    Helper tool to cut down on test boilerplate.
+    """
+    if type(dict_) != dict:
+        return
+    keys = list(dict_.keys())
+    for k in keys:
+        clear_falsy(dict_[k])
+        if not dict_[k]:
+            del dict_[k]
+    return dict_
 
 
 def parse_board(string):

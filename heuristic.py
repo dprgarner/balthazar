@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 
 class Heuristic:
@@ -125,15 +126,26 @@ class Heuristic:
         weights[state != 0] = -1
         return weights
 
-    def choose(self, moves):
+    def choose(self, moves, randomness=0):
+        weights = self._weights
+        if randomness:
+            r = np.vectorize(lambda x: random.random() * 2 * randomness - randomness)
+            weights += r(np.zeros((self.SIZE, self.SIZE)))
+
         # If there is a choice of squares to play in, choose the one with the
         # highest weight.
-        max_value = -1
+        max_value = -1 - randomness
         for move in moves:
-            if self._weights[move] > max_value:
-                max_value = self._weights[move]
+            if weights[move] > max_value:
+                max_value = weights[move]
                 max_move = move
         return max_move
+
+    def get_best_options(self, trials):
+        return [
+            (x // self.SIZE, x % self.SIZE)
+            for x in self._weights.argsort(axis=None)[-trials:][::-1]
+        ]
 
 
 class HighThreesHeuristic(Heuristic):

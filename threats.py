@@ -7,6 +7,7 @@ import numpy as np
 # threat.
 THREAT_TYPES = ['THREE', 'SPLIT_THREE', 'FOUR']
 
+
 SIXES = {
     (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
     (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
@@ -185,4 +186,53 @@ class Threats:
                     gains if player == 1 else costs
                 )
 
+        return threats
+
+    def find_threats_from_move(self, state, move):
+        assert state[move] == 0
+        threats = {
+            1: {
+                'ONE_MOVE': 0,
+                'TWO_MOVES': 0,
+            },
+            -1: {
+                'ONE_MOVE': 0,
+                'TWO_MOVES': 0,
+            },
+        }
+        row, col = move
+
+        for player in [-1, 1]:
+            state[move] = player
+
+            # Check along row for a threat.
+            nearby_lines = []
+            # Rows
+            nearby_lines.append(state[row, max(0, col - 4):col + 5])
+            # Cols
+            nearby_lines.append(state[max(0, row - 4):row + 5, col])
+            # Down-right diagonals
+            pos = min(col, row)
+            nearby_lines.append(
+                np.diagonal(state, offset=col - row)[max(0, pos - 4):pos + 5]
+            )
+            # Up-right diagonals
+            pos = min(col, self.SIZE - 1 - row)
+            nearby_lines.append(
+                np.diagonal(
+                    state[::-1], offset=col - (self.SIZE - 1 - row)
+                )[max(0, pos - 4):pos + 5]
+            )
+
+            for line in nearby_lines:
+                nearby_threats = []
+                for threat in self.find_threats_in_line(list(line)):
+                    nearby_threats.append(threat[0][1])
+
+                if 'FOUR' in nearby_threats:
+                    threats[player]['ONE_MOVE'] += 1
+                elif nearby_threats:
+                    threats[player]['TWO_MOVES'] += 1
+
+        state[move] = 0
         return threats

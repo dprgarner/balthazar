@@ -4,7 +4,6 @@ import numpy as np
 
 from client import GomokuBase
 from heuristic import HEURISTICS
-from threat_potential import ThreatPotential
 from threats import Threats
 
 
@@ -15,6 +14,7 @@ np.set_printoptions(formatter={'float_kind': float_formatter})
 class Gomoku(GomokuBase):
 
     TRIALS = 12
+    RANDOMNESS = 1
 
     def response_to_threat(self, state, heuristic):
         # First, find and collate the threats.
@@ -34,11 +34,42 @@ class Gomoku(GomokuBase):
         if threats[1]['THREE']:
             return heuristic.choose(threats[1]['THREE'])
 
+        # Check in the best option squares whether there are any unblockable
+        # simultaneous threats that can be made, by either player.
+        best_moves  = heuristic.get_best_options(self.TRIALS)
+
+        new_threats = {}
+        for move in best_moves:
+            new_threats[move] = self.threats.find_threats_from_move(state, move)
+            # Make an unblockable instant-response threat if it exists.
+            if (
+                new_threats[move][1]['ONE_MOVE'] > 1 or
+                new_threats[move][1]['ONE_MOVE'] == 1 and
+                new_threats[move][1]['TWO_MOVES'] > 0
+            ):
+                return move
+            # Prevent an unblockable instant-response threat if it exists.
+            if (
+                new_threats[move][-1]['ONE_MOVE'] > 1 or
+                new_threats[move][-1]['ONE_MOVE'] == 1 and
+                new_threats[move][-1]['TWO_MOVES'] > 0
+            ):
+                return move
+
         # Prioritise preventing an unblockable open four from being made.
         if threats[-1]['SPLIT_THREE']:
             return heuristic.choose(threats[-1]['SPLIT_THREE'])
         if threats[-1]['THREE']:
             return heuristic.choose(threats[-1]['THREE'])
+
+        # Find an unblockable sequence of three-threats, if any.
+        for move in best_moves:
+            # Prioritise player's move.
+            if new_threats[move][1]['TWO_MOVES'] > 1:
+                return move
+            # Respond to opponent's possible sequence.
+            if new_threats[move][-1]['TWO_MOVES'] > 1:
+                return move
 
     def play_turn(self, state):
         """
@@ -56,23 +87,12 @@ class Gomoku(GomokuBase):
         if threat_response:
             return threat_response
 
-        # Check the most likely squares for gain
-        # best_options = [
-        #     (x // self.SIZE, x % self.SIZE)
-        #     for x in weights.argsort(axis=None)[-self.TRIALS:][::-1]
-        # ]
-
-        # threat_potential = ThreatPotential(self.SIZE)
-        # threat_potentials = [
-        #     threat_potential.calculate(state, move)
-        #     for move in best_options
-        # ]
-
+        # Just choose the best-looking move.
         return heuristic.choose([
             (i, j)
             for i in range(self.SIZE)
             for j in range(self.SIZE)
-        ])
+        ], randomness=self.RANDOMNESS)
 
 
 if __name__ == '__main__':

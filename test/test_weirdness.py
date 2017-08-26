@@ -3,16 +3,13 @@ import unittest
 
 from test.utils import Gomoku, parse_board
 
-from threat_potential import ThreatPotential
-
 
 class TestWeirdness(unittest.TestCase):
 
-    @unittest.skip('TODO')
     def test_does_not_make_pointless_move(self):
         """
-        What is going on here? The bot moves in (6, 4), when it should move
-        in (12, 10)...
+        Block multiple three-threats over making strange moves. (Taken from
+        an actual game).
         """
         board = parse_board("""
             . . . . . . . . . . . . . . .
