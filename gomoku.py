@@ -14,7 +14,6 @@ np.set_printoptions(formatter={'float_kind': float_formatter})
 class Gomoku(GomokuBase):
 
     TRIALS = 12
-    RANDOMNESS = 1
 
     def response_to_threat(self, state, heuristic):
         # First, find and collate the threats.
@@ -36,7 +35,7 @@ class Gomoku(GomokuBase):
 
         # Check in the best option squares whether there are any unblockable
         # simultaneous threats that can be made, by either player.
-        best_moves  = heuristic.get_best_options(self.TRIALS)
+        best_moves = heuristic.get_best_options(self.TRIALS)
 
         new_threats = {}
         for move in best_moves:
@@ -92,7 +91,7 @@ class Gomoku(GomokuBase):
             (i, j)
             for i in range(self.SIZE)
             for j in range(self.SIZE)
-        ], randomness=self.RANDOMNESS)
+        ], randomness=self.randomness)
 
 
 if __name__ == '__main__':

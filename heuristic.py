@@ -127,10 +127,15 @@ class Heuristic:
         return weights
 
     def choose(self, moves, randomness=0):
+        def tweak_randomly(x):
+            if x == -1.0:
+                return -1.0
+            return max(0, x + random.random() * 2 * randomness - randomness)
+
         weights = self._weights
         if randomness:
-            r = np.vectorize(lambda x: random.random() * 2 * randomness - randomness)
-            weights += r(np.zeros((self.SIZE, self.SIZE)))
+            r = np.vectorize(tweak_randomly)
+            weights = r(self._weights.copy())
 
         # If there is a choice of squares to play in, choose the one with the
         # highest weight.
@@ -139,12 +144,18 @@ class Heuristic:
             if weights[move] > max_value:
                 max_value = weights[move]
                 max_move = move
+
         return max_move
 
     def get_best_options(self, trials):
-        return [
+        moves = [
             (x // self.SIZE, x % self.SIZE)
             for x in self._weights.argsort(axis=None)[-trials:][::-1]
+        ]
+        return [
+            move
+            for move in moves
+            if self._weights[move] != -1
         ]
 
 
