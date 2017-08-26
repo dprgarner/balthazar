@@ -2,80 +2,80 @@ import numpy as np
 import unittest
 
 from test.utils import Heuristic, parse_board
-from threat_response import ThreatResponse
+from threats import Threats
 
 
-threat_responder = ThreatResponse(15, Heuristic(15))
+threats_instance = Threats(15)
 
 
 class TestMatchSixThreatDetecting(unittest.TestCase):
 
     def test_three_threat(self):
-        threat = threat_responder.match_six_threat([0, +1, +1, +1, 0, 0])
+        threat = threats_instance.match_six_threat([0, +1, +1, +1, 0, 0])
         self.assertEqual(threat, (1, 'THREE', [0, 4], [4]))
 
-        threat = threat_responder.match_six_threat([0, -1, -1, -1, 0, 0])
+        threat = threats_instance.match_six_threat([0, -1, -1, -1, 0, 0])
         self.assertEqual(threat, (-1, 'THREE', [0, 4], [4]))
 
-        threat = threat_responder.match_six_threat([0, 0, +1, +1, +1, 0])
+        threat = threats_instance.match_six_threat([0, 0, +1, +1, +1, 0])
         self.assertEqual(threat, (1, 'THREE', [1, 5], [1]))
 
-        threat = threat_responder.match_six_threat([0, 0, -1, -1, -1, 0])
+        threat = threats_instance.match_six_threat([0, 0, -1, -1, -1, 0])
         self.assertEqual(threat, (-1, 'THREE', [1, 5], [1]))
 
     def test_split_three_threat(self):
-        threat = threat_responder.match_six_threat([0, +1, +1, 0, +1, 0])
+        threat = threats_instance.match_six_threat([0, +1, +1, 0, +1, 0])
         self.assertEqual(threat, (1, 'SPLIT_THREE', [0, 3, 5], [3]))
 
-        threat = threat_responder.match_six_threat([0, -1, -1, 0, -1, 0])
+        threat = threats_instance.match_six_threat([0, -1, -1, 0, -1, 0])
         self.assertEqual(threat, (-1, 'SPLIT_THREE', [0, 3, 5], [3]))
 
-        threat = threat_responder.match_six_threat([0, +1, 0, +1, +1, 0])
+        threat = threats_instance.match_six_threat([0, +1, 0, +1, +1, 0])
         self.assertEqual(threat, (1, 'SPLIT_THREE', [0, 2, 5], [2]))
 
-        threat = threat_responder.match_six_threat([0, -1, 0, -1, -1, 0])
+        threat = threats_instance.match_six_threat([0, -1, 0, -1, -1, 0])
         self.assertEqual(threat, (-1, 'SPLIT_THREE', [0, 2, 5], [2]))
 
     def test_null_threat(self):
-        threat = threat_responder.match_six_threat([+1, +1, +1, +1, 0, 0])
+        threat = threats_instance.match_six_threat([+1, +1, +1, +1, 0, 0])
         self.assertIsNone(threat)
 
-        threat = threat_responder.match_six_threat([0, 0, +1, +1, +1, +1])
+        threat = threats_instance.match_six_threat([0, 0, +1, +1, +1, +1])
         self.assertIsNone(threat)
 
-        threat = threat_responder.match_six_threat([+1, +1, 0, 0, +1, +1])
+        threat = threats_instance.match_six_threat([+1, +1, 0, 0, +1, +1])
         self.assertIsNone(threat)
 
 
 class TestMatchFiveThreatDetecting(unittest.TestCase):
 
     def test_four_threat(self):
-        threat = threat_responder.match_five_threat([0, 1, 1, 1, 1])
+        threat = threats_instance.match_five_threat([0, 1, 1, 1, 1])
         self.assertEqual(threat, (1, 'FOUR', [0], [0]))
 
-        threat = threat_responder.match_five_threat([1, 0, 1, 1, 1])
+        threat = threats_instance.match_five_threat([1, 0, 1, 1, 1])
         self.assertEqual(threat, (1, 'FOUR', [1], [1]))
 
-        threat = threat_responder.match_five_threat([1, 1, 0, 1, 1])
+        threat = threats_instance.match_five_threat([1, 1, 0, 1, 1])
         self.assertEqual(threat, (1, 'FOUR', [2], [2]))
 
-        threat = threat_responder.match_five_threat([1, 1, 1, 0, 1])
+        threat = threats_instance.match_five_threat([1, 1, 1, 0, 1])
         self.assertEqual(threat, (1, 'FOUR', [3], [3]))
 
-        threat = threat_responder.match_five_threat([1, 1, 1, 1, 0])
+        threat = threats_instance.match_five_threat([1, 1, 1, 1, 0])
         self.assertEqual(threat, (1, 'FOUR', [4], [4]))
 
-        threat = threat_responder.match_five_threat([0, -1, -1, -1, -1])
+        threat = threats_instance.match_five_threat([0, -1, -1, -1, -1])
         self.assertEqual(threat, (-1, 'FOUR', [0], [0]))
 
     def test_null_threat(self):
-        threat = threat_responder.match_five_threat([+1, +1, +1, 0, 0])
+        threat = threats_instance.match_five_threat([+1, +1, +1, 0, 0])
         self.assertIsNone(threat)
 
-        threat = threat_responder.match_five_threat([0, 0, +1, +1, +1])
+        threat = threats_instance.match_five_threat([0, 0, +1, +1, +1])
         self.assertIsNone(threat)
 
-        threat = threat_responder.match_five_threat([+1, +1, 0, 0, +1])
+        threat = threats_instance.match_five_threat([+1, +1, 0, 0, +1])
         self.assertIsNone(threat)
 
 
@@ -116,7 +116,7 @@ class TestFindThreat(unittest.TestCase):
             . . X . . . . . . . . X . . .
             . . . X . . . . . . X . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {})
 
     def test_find_open_four(self):
@@ -140,7 +140,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             1: {
                 'FOUR': [(7, 4), (7, 9)],
@@ -168,7 +168,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             -1: {
                 'FOUR': [(7, 3)],
@@ -193,7 +193,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             -1: {
                 'FOUR': [(7, 3)],
@@ -218,7 +218,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             -1: {
                 'SPLIT_THREE': [(7, 1), (7, 3), (7, 6)],
@@ -243,7 +243,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             1: {
                 'FOUR': [(3, 0)],
@@ -271,7 +271,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = clear_falsy(threat_responder.find_threats_in_grid(board))
+        threats = clear_falsy(threats_instance.find_all_threats(board))
         self.assertEqual(clear_falsy(threats), {
             1: {
                 'THREE': [(9, 2), (13, 2)],
@@ -300,7 +300,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             -1: {
                 'THREE': [(9, 2), (13, 2)],
@@ -325,7 +325,7 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . O . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             1: {
                 'FOUR': [(0, 9), (5, 14)],
@@ -353,7 +353,7 @@ class TestFindThreat(unittest.TestCase):
             . X . . . . . . . . X . . . .
             X . . . . . . . . . . . . . .
         """)
-        threats = threat_responder.find_threats_in_grid(board)
+        threats = threats_instance.find_all_threats(board)
         self.assertEqual(clear_falsy(threats), {
             1: {
                 'FOUR': [(11, 3)],

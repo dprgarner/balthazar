@@ -5,6 +5,8 @@ import numpy as np
 # cost_squares are the squares that a defender should play in to stop the
 # threat being fulfilled, and gain_squares the squares which fulfill the
 # threat.
+THREAT_TYPES = ['THREE', 'SPLIT_THREE', 'FOUR']
+
 SIXES = {
     (0, 1, 1, 1, 0, 0): ('THREE', [0, 4], [4]),
     (0, 0, 1, 1, 1, 0): ('THREE', [1, 5], [1]),
@@ -28,14 +30,13 @@ FIVES = {
 }
 
 
-class ThreatResponse:
+class Threats:
     """
     A class that handles whether a player needs to immediately respond to a
     given state on the board.
     """
-    def __init__(self, SIZE, weights):
+    def __init__(self, SIZE):
         self.SIZE = SIZE
-        self.weights = weights
 
     def match_six_threat(self, counters):
         # Return (player, type, cost_squares, gain_squares).
@@ -102,8 +103,7 @@ class ThreatResponse:
 
             del line[0]
 
-    def find_threats_in_grid(self, state):
-        THREAT_TYPES = ['THREE', 'SPLIT_THREE', 'FOUR']
+    def find_all_threats(self, state):
         threats = {
             1: {
                 threat_type: []
@@ -186,37 +186,3 @@ class ThreatResponse:
                 )
 
         return threats
-
-    def choose_threat(self, state, threats):
-        # If there is a choice of threats to respond to, choose the one with
-        # the highest weight.
-        max_value = -1
-        for threat in threats:
-            if self.weights[threat] > max_value:
-                max_value = self.weights[threat]
-                max_threat = threat
-        return max_threat
-
-    def response_to_threat(self, state):
-        # First, find and collate the threats.
-        threats = self.find_threats_in_grid(state)
-
-        # Prioritise an immediate win.
-        if threats[1]['FOUR']:
-            return self.choose_threat(state, threats[1]['FOUR'])
-
-        # Prioritise blocking an immediate loss.
-        if threats[-1]['FOUR']:
-            return self.choose_threat(state, threats[-1]['FOUR'])
-
-        # Prioritise making an unblockable open four.
-        if threats[1]['SPLIT_THREE']:
-            return self.choose_threat(state, threats[1]['SPLIT_THREE'])
-        if threats[1]['THREE']:
-            return self.choose_threat(state, threats[1]['THREE'])
-
-        # Prioritise preventing an unblockable open four from being made.
-        if threats[-1]['SPLIT_THREE']:
-            return self.choose_threat(state, threats[-1]['SPLIT_THREE'])
-        if threats[-1]['THREE']:
-            return self.choose_threat(state, threats[-1]['THREE'])

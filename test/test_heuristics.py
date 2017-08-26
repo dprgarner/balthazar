@@ -86,7 +86,7 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             potential_one_opponent = 0
             potential_empty = 0
 
-        biases = HeuristicWithBias(15).add_possible_fives_bias(board)
+        biases = HeuristicWithBias(board).add_possible_fives_bias(board)
         # The centre is a nonsense result, so ignore.
         biases[7, 7] = 0
         expected = np.array([
@@ -137,7 +137,7 @@ class TestPossibleFivesHeuristics(unittest.TestCase):
             potential_one_opponent = 1
             potential_empty = 0
 
-        biases = HeuristicWithBias(15).add_possible_fives_bias(board)
+        biases = HeuristicWithBias(board).add_possible_fives_bias(board)
         # The centre is a nonsense result, so ignore.
         biases[7, 7] = 0
         expected = np.array([

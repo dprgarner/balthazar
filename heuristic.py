@@ -4,7 +4,7 @@ import numpy as np
 class Heuristic:
     """
     A class for getting a rough, non-depth-searching value for each counter on
-    the board.
+    the board. Comes with a method for choosing the highest-potential square.
     """
 
     # Tuneable parameters.
@@ -22,8 +22,9 @@ class Heuristic:
     potential_one_opponent = 1
     potential_empty = 0
 
-    def __init__(self, size):
-        self.SIZE = size
+    def __init__(self, state):
+        self.SIZE = len(state)
+        self._weights = self.calculate(state)
 
     @property
     def potential_weights(self):
@@ -117,12 +118,22 @@ class Heuristic:
         return biases
 
     def calculate(self, state):
-        heuristic = np.zeros((self.SIZE, self.SIZE), dtype=float)
-        heuristic += self.centre_bias()
-        heuristic += self.cross_bias()
-        heuristic += self.add_possible_fives_bias(state)
-        heuristic[state != 0] = -1
-        return heuristic
+        weights = np.zeros((self.SIZE, self.SIZE), dtype=float)
+        weights += self.centre_bias()
+        weights += self.cross_bias()
+        weights += self.add_possible_fives_bias(state)
+        weights[state != 0] = -1
+        return weights
+
+    def choose(self, moves):
+        # If there is a choice of squares to play in, choose the one with the
+        # highest weight.
+        max_value = -1
+        for move in moves:
+            if self._weights[move] > max_value:
+                max_value = self._weights[move]
+                max_move = move
+        return max_move
 
 
 class HighThreesHeuristic(Heuristic):
