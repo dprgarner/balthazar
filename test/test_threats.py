@@ -79,6 +79,19 @@ class TestMatchFiveThreatDetecting(unittest.TestCase):
         self.assertIsNone(threat)
 
 
+def clear_falsy(dict_):
+    """
+    Helper tool to cut down on test boilerplate.
+    """
+    if type(dict_) != dict:
+        return
+    keys = list(dict_.keys())
+    for k in keys:
+        clear_falsy(dict_[k])
+        if not dict_[k]:
+            del dict_[k]
+    return dict_
+
 
 class TestFindThreat(unittest.TestCase):
 
@@ -104,7 +117,7 @@ class TestFindThreat(unittest.TestCase):
             . . . X . . . . . . X . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertEqual(threats, [])
+        self.assertEqual(clear_falsy(threats), {})
 
     def test_find_open_four(self):
         """
@@ -128,8 +141,11 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertIn((1, 'FOUR', [(7, 4)], [(7, 4)]), threats)
-        self.assertIn((1, 'FOUR', [(7, 9)], [(7, 9)]), threats)
+        self.assertEqual(clear_falsy(threats), {
+            1: {
+                'FOUR': [(7, 4), (7, 9)],
+            },
+        })
 
     def test_find_closed_four(self):
         """
@@ -153,7 +169,11 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertIn((-1, 'FOUR', [(7, 3)], [(7, 3)]), threats)
+        self.assertEqual(clear_falsy(threats), {
+            -1: {
+                'FOUR': [(7, 3)],
+            },
+        })
 
     def test_find_closed_four_with_piece_boundaries(self):
         board = parse_board("""
@@ -174,7 +194,11 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertEqual(threats, [(-1, 'FOUR', [(7, 3)], [(7, 3)])])
+        self.assertEqual(clear_falsy(threats), {
+            -1: {
+                'FOUR': [(7, 3)],
+            },
+        })
 
     def test_split_three(self):
         board = parse_board("""
@@ -195,9 +219,11 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertEqual(threats, [
-            (-1, 'SPLIT_THREE', [(7, 1), (7, 3), (7, 6)], [(7, 3)])
-        ])
+        self.assertEqual(clear_falsy(threats), {
+            -1: {
+                'SPLIT_THREE': [(7, 1), (7, 3), (7, 6)],
+            },
+        })
 
     def test_column_threats(self):
         board = parse_board("""
@@ -218,8 +244,16 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertEqual(threats, [(1, 'FOUR', [(3, 0)], [(3, 0)])])
+        self.assertEqual(clear_falsy(threats), {
+            1: {
+                'FOUR': [(3, 0)],
+            },
+        })
 
+    def test_open_three_yielded_once(self):
+        """
+        Only one threat should be registered when there is an open three.
+        """
         board = parse_board("""
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
@@ -238,8 +272,11 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertIn((-1, 'THREE', [(9, 2), (13, 2)], [(9, 2)]), threats)
-        self.assertIn((-1, 'THREE', [(9, 2), (13, 2)], [(13, 2)]), threats)
+        self.assertEqual(clear_falsy(threats), {
+            -1: {
+                'THREE': [(9, 2), (13, 2)],
+            },
+        })
 
     def test_down_right_diagonal_threats(self):
         board = parse_board("""
@@ -260,9 +297,14 @@ class TestFindThreat(unittest.TestCase):
             . . . . O . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertIn((1, 'FOUR', [(5, 14)], [(5, 14)]), threats)
-        self.assertIn((1, 'FOUR', [(0, 9)], [(0, 9)]), threats)
-        self.assertIn((-1, 'FOUR', [(13, 3)], [(13, 3)]), threats)
+        self.assertEqual(clear_falsy(threats), {
+            1: {
+                'FOUR': [(0, 9), (5, 14)],
+            },
+            -1: {
+                'FOUR': [(13, 3)],
+            },
+        })
 
     def test_down_left_diagonal_threats(self):
         board = parse_board("""
@@ -283,10 +325,13 @@ class TestFindThreat(unittest.TestCase):
             X . . . . . . . . . . . . . .
         """)
         threats = threat_responder.find_threats_in_grid(board)
-        self.assertIn((-1, 'FOUR', [(3, 1)], [(3, 1)]), threats)
-        self.assertIn(
-            (1, 'SPLIT_THREE', [(14, 9), (12, 11), (9, 14)], [(12, 11)]),
-            threats,
-        )
-        self.assertIn((1, 'FOUR', [(11, 3)], [(11, 3)]), threats)
-        self.assertIn((-1, 'FOUR', [(0, 14)], [(0, 14)]), threats)
+        self.assertEqual(clear_falsy(threats), {
+            1: {
+                'FOUR': [(11, 3)],
+                'SPLIT_THREE': [(12, 11)],
+            },
+            -1: {
+                'FOUR': [(3, 1), (5, 9), (0, 14)],
+            },
+        })
+

@@ -80,12 +80,20 @@ class ThreatResponse:
         This generator mutates the input list 'line'.
         """
         offset = -1
+        last_six_threat = None
         while len(line) >= 5:
             offset += 1
             if len(line) >= 6:
                 six_threat = self.match_six_threat(line)
-                if six_threat:
+                # Special case: don't yield an open three threat twice in a
+                # row, as it's the same threat.
+                if six_threat and not (
+                    six_threat[1] == 'THREE' and
+                    last_six_threat and
+                    last_six_threat[1] == 'THREE'
+                ):
                     yield six_threat, offset
+                last_six_threat = six_threat
 
             five_threat = self.match_five_threat(line)
             if five_threat:
@@ -94,35 +102,49 @@ class ThreatResponse:
             del line[0]
 
     def find_threats_in_grid(self, state):
-        threats = []
+        THREAT_TYPES = ['THREE', 'SPLIT_THREE', 'FOUR']
+        threats = {
+            1: {
+                threat_type: []
+                for threat_type in THREAT_TYPES
+            },
+            -1: {
+                threat_type: []
+                for threat_type in THREAT_TYPES
+            },
+        }
 
         # Check along rows for a threat.
         for row in range(self.SIZE):
             for threat in self.find_threats_in_line(list(state[row])):
                 (player, type_, cost_squares, gain_squares), offset = threat
-                threats.append((
-                    player, type_, [
-                        (row, offset + cost_square)
-                        for cost_square in cost_squares
-                    ], [
-                        (row, offset + gain_square)
-                        for gain_square in gain_squares
-                    ]
-                ))
+                costs = [
+                    (row, offset + cost_square)
+                    for cost_square in cost_squares
+                ]
+                gains = [
+                    (row, offset + gain_square)
+                    for gain_square in gain_squares
+                ]
+                threats[player][type_].extend(
+                    gains if player == 1 else costs
+                )
 
         # Check along columns...
         for col in range(self.SIZE):
             for threat in self.find_threats_in_line(list(state[:, col])):
                 (player, type_, cost_squares, gain_squares), offset = threat
-                threats.append((
-                    player, type_, [
-                        (offset + cost_square, col)
-                        for cost_square in cost_squares
-                    ], [
-                        (offset + gain_square, col)
-                        for gain_square in gain_squares
-                    ]
-                ))
+                costs = [
+                    (offset + cost_square, col)
+                    for cost_square in cost_squares
+                ]
+                gains = [
+                    (offset + gain_square, col)
+                    for gain_square in gain_squares
+                ]
+                threats[player][type_].extend(
+                    gains if player == 1 else costs
+                )
 
         # Check along down-right diagonals...
         for diag_offset in range(-self.SIZE + 5, self.SIZE - 4):
@@ -131,15 +153,17 @@ class ThreatResponse:
                 (player, type_, cost_squares, gain_squares), offset = threat
                 row = max(0, -diag_offset) + offset
                 col = max(0, diag_offset) + offset
-                threats.append((
-                    player, type_, [
-                        (row + cost_square, col + cost_square)
-                        for cost_square in cost_squares
-                    ], [
-                        (row + gain_square, col + gain_square)
-                        for gain_square in gain_squares
-                    ]
-                ))
+                costs = [
+                    (row + cost_square, col + cost_square)
+                    for cost_square in cost_squares
+                ]
+                gains = [
+                    (row + gain_square, col + gain_square)
+                    for gain_square in gain_squares
+                ]
+                threats[player][type_].extend(
+                    gains if player == 1 else costs
+                )
 
         # Check along down-left diagonals...
         for diag_offset in range(-self.SIZE + 5, self.SIZE - 4):
@@ -148,15 +172,17 @@ class ThreatResponse:
                 (player, type_, cost_squares, gain_squares), offset = threat
                 row = self.SIZE - 1 - max(0, -diag_offset) - offset
                 col = max(0, diag_offset) + offset
-                threats.append((
-                    player, type_, [
-                        (row - cost_square, col + cost_square)
-                        for cost_square in cost_squares
-                    ], [
-                        (row - gain_square, col + gain_square)
-                        for gain_square in gain_squares
-                    ]
-                ))
+                costs = [
+                    (row - cost_square, col + cost_square)
+                    for cost_square in cost_squares
+                ]
+                gains = [
+                    (row - gain_square, col + gain_square)
+                    for gain_square in gain_squares
+                ]
+                threats[player][type_].extend(
+                    gains if player == 1 else costs
+                )
 
         return threats
 
@@ -172,32 +198,24 @@ class ThreatResponse:
 
     def response_to_threat(self, state):
         # First, find and collate the threats.
-        threats = {}
-        for threat_player, type_, costs, gains in self.find_threats_in_grid(state):
-            if threat_player not in threats:
-                threats[threat_player] = {}
-            if type_ not in threats[threat_player]:
-                threats[threat_player][type_] = []
-            threats[threat_player][type_].extend(
-                gains if threat_player == 1 else costs
-            )
+        threats = self.find_threats_in_grid(state)
 
         # Prioritise an immediate win.
-        if threats.get(1, {}).get('FOUR'):
+        if threats[1]['FOUR']:
             return self.choose_threat(state, threats[1]['FOUR'])
 
         # Prioritise blocking an immediate loss.
-        if threats.get(-1, {}).get('FOUR'):
+        if threats[-1]['FOUR']:
             return self.choose_threat(state, threats[-1]['FOUR'])
 
         # Prioritise making an unblockable open four.
-        if threats.get(1, {}).get('SPLIT_THREE'):
+        if threats[1]['SPLIT_THREE']:
             return self.choose_threat(state, threats[1]['SPLIT_THREE'])
-        if threats.get(1, {}).get('THREE'):
+        if threats[1]['THREE']:
             return self.choose_threat(state, threats[1]['THREE'])
 
         # Prioritise preventing an unblockable open four from being made.
-        if threats.get(-1, {}).get('SPLIT_THREE'):
+        if threats[-1]['SPLIT_THREE']:
             return self.choose_threat(state, threats[-1]['SPLIT_THREE'])
-        if threats.get(-1, {}).get('THREE'):
+        if threats[-1]['THREE']:
             return self.choose_threat(state, threats[-1]['THREE'])

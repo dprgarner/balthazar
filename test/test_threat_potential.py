@@ -7,7 +7,6 @@ from threat_potential import ThreatPotential
 
 class TestThreatPotential(unittest.TestCase):
 
-    unittest.skip('TODO')
     def test_notice_three_threat(self):
         """
         If the square will make a threat, record it and the threat made.
