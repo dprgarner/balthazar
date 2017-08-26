@@ -85,9 +85,10 @@ class ThreatResponse:
             offset += 1
             if len(line) >= 6:
                 six_threat = self.match_six_threat(line)
-                # Special case: don't yield an open three threat twice in a
-                # row, as it's the same threat.
+                # Special case: don't yield an open three threat made by the
+                # other player twice in a row, as it's the same threat.
                 if six_threat and not (
+                    six_threat[0] == -1 and
                     six_threat[1] == 'THREE' and
                     last_six_threat and
                     last_six_threat[1] == 'THREE'

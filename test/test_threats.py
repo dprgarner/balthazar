@@ -265,6 +265,35 @@ class TestFindThreat(unittest.TestCase):
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . .
+            . . X . . . . . . . . . . . .
+            . . X . . . . . . . . . . . .
+            . . X . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+        """)
+        threats = clear_falsy(threat_responder.find_threats_in_grid(board))
+        self.assertEqual(clear_falsy(threats), {
+            1: {
+                'THREE': [(9, 2), (13, 2)],
+            },
+        })
+
+    def test_open_three_response_yielded_once(self):
+        """
+        Only one threat should be registered when there is an open three to
+        respond to.
+        """
+        board = parse_board("""
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . .
             . . O . . . . . . . . . . . .
             . . O . . . . . . . . . . . .
             . . O . . . . . . . . . . . .
